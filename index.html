@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaixaFacil - Aurion Solutions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-container">
+        <div class="login-box">
+            <!-- Logo removed -->
+            <h2>Bem-vindo ao CaixaFacil</h2>
+            <p>Sistema de Caixa - Aurion Solutions</p>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="username">Usuário</label>
+                    <input type="text" id="username" placeholder="Digite seu usuário" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" placeholder="Digite sua senha" required>
+                </div>
+                <button type="submit" class="btn-primary">Entrar</button>
+                <p id="login-error" class="error-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app-container" class="app-container hidden">
+        <!-- Sidebar History -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Histórico Recente</h3>
+                <button id="print-history-btn" class="btn-secondary small-btn" style="margin-top: 10px; width: 100%;">Imprimir Histórico</button>
+            </div>
+            <div id="history-list" class="history-list">
+                <!-- History items will be injected here -->
+                <div class="empty-history">Nenhuma transação recente.</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="logo-area">
+                    <!-- Logo removed -->
+                    <div>
+                        <h1>CaixaFacil</h1>
+                        <span class="subtitle">Desenvolvido por Aurion Solutions</span>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <span>Operador: <strong id="operator-name">João</strong></span>
+                    <button id="logout-btn" class="btn-secondary">Sair</button>
+                </div>
+            </header>
+
+            <section class="calculator-section">
+                <!-- Tabs Navigation -->
+                <div class="tabs-nav">
+                    <button class="tab-btn active" data-tab="troco">Troco</button>
+                    <button class="tab-btn" data-tab="virada">Virada Caixa</button>
+                </div>
+
+                <!-- Tab: Troco -->
+                <div id="tab-troco" class="tab-content active">
+                    <div class="inputs-area">
+                        <div class="input-card">
+                            <label for="amount-to-charge">Valor a Cobrar (R$)</label>
+                            <input type="number" id="amount-to-charge" step="0.01" min="0" placeholder="0,00">
+                        </div>
+                        <div class="input-card">
+                            <label for="amount-paid">Valor Pago (R$)</label>
+                            <input type="number" id="amount-paid" step="0.01" min="0" placeholder="0,00">
+                        </div>
+                    </div>
+
+                    <div class="result-area" id="result-area">
+                        <div class="status-message" id="status-message">Aguardando valores...</div>
+                        <div class="change-display hidden" id="change-display">
+                            <span class="label">Troco a Devolver:</span>
+                            <span class="value" id="change-value">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <div class="visual-change-area" id="visual-change-area">
+                        <!-- Notes and coins will appear here -->
+                    </div>
+
+                    <div class="actions-area">
+                        <button id="finalize-btn" class="btn-primary large-btn hidden">Finalizar Operação</button>
+                    </div>
+                </div>
+
+                <!-- Tab: Virada Caixa -->
+                <div id="tab-virada" class="tab-content hidden">
+                    <div class="shift-change-container">
+                        <h3>Virada de Caixa: Anote aqui os itens vendidos</h3>
+                        
+                        <div class="shift-inputs">
+                            <input type="text" id="shift-prod" placeholder="Produto">
+                            <input type="text" id="shift-code" placeholder="Código">
+                            <input type="number" id="shift-qty" placeholder="Qtd" min="1" style="width: 80px;">
+                            <input type="number" id="shift-total" placeholder="Total (R$)" step="0.01">
+                            <button id="add-shift-item-btn" class="btn-primary">+</button>
+                        </div>
+
+                        <table class="shift-table">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Código</th>
+                                    <th>Qtd</th>
+                                    <th>Total</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shift-list">
+                                <!-- Items go here -->
+                            </tbody>
+                        </table>
+                        
+                        <div class="shift-actions">
+                             <button id="print-shift-btn" class="btn-secondary" style="color: #333; border-color: #333;">Imprimir Virada</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="password-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Senha de Supervisor</h3>
+            <p>Digite a senha para excluir o registro.</p>
+            <input type="password" id="admin-password" placeholder="Senha">
+            <p id="password-error" class="error-message"></p>
+            <div class="modal-actions">
+                <button id="cancel-delete" class="btn-secondary" style="color: #333; border-color: #333;">Cancelar</button>
+                <button id="confirm-delete" class="btn-primary">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal hidden">
+        <div class="modal-content large-modal">
+            <h3>Detalhes da Venda</h3>
+            <div id="edit-info" class="edit-info"></div>
+            
+            <div class="items-section">
+                <h4>Itens Consumidos</h4>
+                <ul id="items-list" class="items-list">
+                    <!-- Items will be added here -->
+                </ul>
+                <div class="add-item-form">
+                    <input type="text" id="new-item-name" placeholder="Adicionar item (Ex: Gasolina)">
+                    <button id="add-item-btn" class="btn-primary small-btn">+</button>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button id="close-edit" class="btn-primary">Salvar e Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
