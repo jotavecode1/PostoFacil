@@ -136,10 +136,42 @@ body {
     min-height: 20px;
 }
 
+/* Welcome Overlay */
+.welcome-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.welcome-content {
+    text-align: center;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.welcome-content h2 {
+    font-size: 3rem;
+    color: var(--primary-blue);
+    margin-bottom: 10px;
+}
+
+.welcome-content p {
+    font-size: 1.5rem;
+    color: #666;
+}
+
 /* App Layout */
 .app-container {
     display: flex;
     height: 100vh;
+    background-color: white; /* Ensure white background as requested */
 }
 
 /* Sidebar */
@@ -151,6 +183,15 @@ body {
     flex-direction: column;
     height: 100%;
     box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    transition: width 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+    overflow: hidden;
+}
+
+.sidebar.hidden {
+    width: 0;
+    opacity: 0;
+    margin-right: 0;
+    border: none;
 }
 
 .sidebar-header {
@@ -769,4 +810,15 @@ body {
     max-height: none;
     flex: 1;
     margin-bottom: 0;
+}
+
+/* Home Tab Styles */
+.home-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    animation: fadeIn 0.5s ease-out;
 }

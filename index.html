@@ -32,10 +32,18 @@
         </div>
     </div>
 
+    <!-- Welcome Overlay -->
+    <div id="welcome-overlay" class="welcome-overlay hidden">
+        <div class="welcome-content">
+            <h2 id="welcome-message-title">Bem-vindo!</h2>
+            <p class="welcome-subtitle">Bom Trabalho!</p>
+        </div>
+    </div>
+
     <!-- Main App -->
     <div id="app-container" class="app-container hidden">
         <!-- Sidebar History -->
-        <aside class="sidebar">
+        <aside id="main-sidebar" class="sidebar">
             <div class="sidebar-header">
                 <h3>Histórico Recente</h3>
                 <button id="print-history-btn" class="btn-secondary small-btn" style="margin-top: 10px; width: 100%;">Imprimir Histórico</button>
@@ -65,12 +73,24 @@
             <section class="calculator-section">
                 <!-- Tabs Navigation -->
                 <div class="tabs-nav">
-                    <button class="tab-btn active" data-tab="troco">Troco</button>
+                    <button class="tab-btn active" data-tab="home">Início</button>
+                    <button class="tab-btn" data-tab="troco">Troco</button>
                     <button class="tab-btn" data-tab="virada">Virada Caixa</button>
                 </div>
 
+                <!-- Tab: Home -->
+                <div id="tab-home" class="tab-content active">
+                    <div class="home-container">
+                        <h2 style="font-size: 3rem; color: #0033cc; margin-bottom: 10px;">CaixaFacil</h2>
+                        <p style="font-size: 1.2rem; color: #666;">Sistema de Gestão de Caixa</p>
+                        <div style="margin-top: 40px; opacity: 0.5;">
+                            <p>Selecione uma opção acima para iniciar.</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Tab: Troco -->
-                <div id="tab-troco" class="tab-content active">
+                <div id="tab-troco" class="tab-content hidden">
                     <div class="inputs-area">
                         <div class="input-card">
                             <label for="amount-to-charge">Valor a Cobrar (R$)</label>
@@ -105,21 +125,21 @@
                         <h3>Virada de Caixa: Anote aqui os itens vendidos</h3>
                         
                         <div class="shift-inputs">
-                            <input type="text" id="shift-prod" placeholder="Produto">
-                            <input type="text" id="shift-code" placeholder="Código">
-                            <input type="number" id="shift-qty" placeholder="Qtd" min="1" style="width: 80px;">
-                            <input type="number" id="shift-total" placeholder="Total (R$)" step="0.01">
-                            <button id="add-shift-item-btn" class="btn-primary">+</button>
+                            <input type="text" id="shift-code" placeholder="Cód" style="width: 70px; flex: none;">
+                            <input type="text" id="shift-prod" placeholder="Produto" style="flex: 1;">
+                            <input type="number" id="shift-qty" placeholder="Qtd" min="1" style="width: 60px; flex: none;">
+                            <input type="number" id="shift-total" placeholder="Total" step="0.01" style="width: 80px; flex: none;">
+                            <button id="add-shift-item-btn" class="btn-primary" style="padding: 0 15px;">+</button>
                         </div>
 
                         <table class="shift-table">
                             <thead>
                                 <tr>
+                                    <th style="width: 60px;">Cód</th>
                                     <th>Produto</th>
-                                    <th>Código</th>
-                                    <th>Qtd</th>
-                                    <th>Total</th>
-                                    <th>Ação</th>
+                                    <th style="width: 50px;">Qtd</th>
+                                    <th style="width: 80px;">Total</th>
+                                    <th style="width: 70px;">Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="shift-list">

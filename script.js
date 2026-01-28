@@ -59,6 +59,200 @@ document.addEventListener('DOMContentLoaded', () => {
     // Valid Users
     const validUsers = ['joao', 'isaque', 'luan', 'gabriel', 'bruno', 'marina', 'luiz', 'murilo'];
 
+    // Product Database
+    const productDatabase = [
+        { code: '505', name: 'ISQUEIRO MINI' },
+        { code: '2527', name: 'ISQUEIRO MAX' },
+        { code: '1890', name: 'PRES. PRUDENCE' },
+        { code: '2482', name: 'SUPER BOND' },
+        { code: '4211', name: 'PALHEIROS PARATY' },
+        { code: '3595', name: 'FUMO MASCAR STOCKER' },
+        { code: '4262', name: 'PALHEIROS SAVANNA' },
+        { code: '3592', name: 'PALHEIROS SANTROPEZ' },
+        { code: '3659', name: 'SEDA PAPELITO' },
+        { code: '3593', name: 'SEDA SMOKING' },
+        { code: '3656', name: 'OCULOS BR BRASIL' },
+        { code: '648', name: 'CARVAO VILA RICA' },
+        { code: '2250', name: 'CARVAO SÃO JOSÉ' },
+        { code: '582', name: 'ERVA YACUI NATURAL' },
+        { code: '519', name: 'CHOCO KINDER OVO' },
+        { code: '130', name: 'KINDER JOY' },
+        { code: '357', name: 'CHOCO M&M TUBO' },
+        { code: '2490', name: 'CAIXA BOMBOM' },
+        { code: '308', name: 'CHOCO BIS CAIXA' },
+        { code: '397', name: 'LEITE LIDER' },
+        { code: '319', name: 'MIOJO NISSIN' },
+        { code: '757', name: 'CAFÉ JAGUARI' },
+        { code: '3620', name: 'CAFÉ CABOCLO' },
+        { code: '3157', name: 'LEITE CONDENSADO' },
+        { code: '2475', name: 'CREME DE LEITE' },
+        { code: '1141', name: 'NESCAU 2.0' },
+        { code: '3116', name: 'LEITE NINHO LATA' },
+        { code: '2695', name: 'BALA FINI' },
+        { code: '3171', name: 'BISCOITO TRAKINAS' },
+        { code: '1224', name: 'PULLMAN PÃO FORMA' },
+        { code: '1225', name: 'PULLMAN' },
+        { code: '3249', name: 'BOM AR' },
+        { code: '3248', name: 'AMACIANTE DIVERSOS' },
+        { code: '1250', name: 'SABÃO EM PÓ OMO' },
+        { code: '2478', name: 'SABONETE DIVERSOS' },
+        { code: '2986', name: 'GILLETE/PRESTOBARBA' },
+        { code: '2619', name: 'ABSORVENTE' },
+        { code: '2735', name: 'SHAMPOO' },
+        { code: '2553', name: 'CONDICIONADOR' },
+        { code: '4202', name: 'S.FRITOP BATATA 130G' },
+        { code: '4203', name: 'S.FRITOP BATATA 50G' },
+        { code: '4204', name: 'S. POLVILHO FRITOP' },
+        { code: '76', name: 'AMENDOIM MARIA' },
+        { code: '1734', name: 'POLVILHO TICK TITOS' },
+        { code: '543', name: 'PURURUCA CAIPIRA' },
+        { code: '3616', name: 'SALGADINHO FRITOP' },
+        { code: '380', name: 'ELMA RUFFLES 75 GR' },
+        { code: '2230', name: 'ELMA RUFFLES 115 GR' },
+        { code: '2899', name: 'ELMA DORITOS DINAM' },
+        { code: '372', name: 'ELMA DORITOS 75 GR' },
+        { code: '2337', name: 'ELMA DORITOS 120 GR' },
+        { code: '2770', name: 'BATATA PRINGLES' },
+        { code: '703', name: 'ELMA BATATA STAX' },
+        { code: '2262', name: 'ELMA FANDANGOS 105' },
+        { code: '376', name: 'ELMA SENSAÇÕES' },
+        { code: '2265', name: 'ELMA CHEETOS 105 GR' },
+        { code: '410', name: 'ELMA CEBOLITOS' },
+        { code: '2599', name: 'ELMA BACONZITO' },
+        { code: '3596', name: 'MANTEIGA' },
+        { code: '1149', name: 'MARGARINA QUALY' },
+        { code: '1150', name: 'REQUEIJÃO CREMOSO' },
+        { code: '144', name: 'TODDYNHO' },
+        { code: '1972', name: 'NESTLE NESCAU FATOR' },
+        { code: '1020', name: 'AGUA DE COCO' },
+        { code: '3074', name: 'CHAMYTO BIG' },
+        { code: '3211', name: 'SUCO LIFE 300ML' },
+        { code: '938', name: 'SUCO PRATS 300ML' },
+        { code: '939', name: 'SUCO PRATS 900ML' },
+        { code: '3225', name: 'SUCO LIFE 900ML' },
+        { code: '4137', name: 'SUCO PRATS 1,5L' },
+        { code: '4391', name: 'SUCO LIFE 1,5L' },
+        { code: '78', name: 'SUCO DEL VALE PET' },
+        { code: '2684', name: 'CHÁ FUZE LEÃO ICE TEA' },
+        { code: '3048', name: 'PERDIGÃO MORTADELA' },
+        { code: '3212', name: 'COCA/PEPSI… 200ML' },
+        { code: '302', name: 'SPRITE LATA' },
+        { code: '2195', name: 'AGUA CRYSTAL 500ML' },
+        { code: '2318', name: 'AGUA CRYSTAL 1,5 LT' },
+        { code: '825', name: 'SANTA INES 500ML' },
+        { code: '917', name: 'SANTA INES 1,5L' },
+        { code: '3645', name: 'ENERGETICO BALY 2L' },
+        { code: '208', name: 'ENERG 8 SEGUNDO 2L' },
+        { code: '2150', name: 'REFRI H2O 2 LITROS' },
+        { code: '1033', name: 'PAO FRANCES' },
+        { code: '1576', name: 'HEINEKEN LONG' },
+        { code: '753', name: 'HEINEKEN LATA' },
+        { code: '3904', name: 'PATAGONIA IPA LONG' },
+        { code: '537', name: 'STELLA LONG' },
+        { code: '3903', name: 'SPATEN LONG' },
+        { code: '3206', name: 'CORONA LONG' },
+        { code: '4030', name: 'IMPÉRIO LONG' },
+        { code: '1899', name: 'SPATEN LATA' },
+        { code: '3015', name: 'IMPERIO LATA' },
+        { code: '638', name: 'VODKA SMIRNOFF 1L' },
+        { code: '2919', name: 'VODKA SKYY 1L' },
+        { code: '575', name: 'VODKA ASKOV 1L' },
+        { code: '1879', name: 'ASKOV GIN DIV. 1L' },
+        { code: '738', name: 'ASKOV FUNFUN' },
+        { code: '3407', name: 'COROTE' },
+        { code: '3000', name: 'EISENBAHN' },
+        { code: '2351', name: 'AMSTEL LONG' },
+        { code: '4641', name: 'AMSTEL ULTRA LATA' },
+        { code: '651', name: 'BUDWEISER LONG' },
+        { code: '221', name: 'BRAHMA DUPLO MALT' },
+        { code: '660', name: 'BUDWEISER LATA' },
+        { code: '2716', name: 'AMSTEL LATA' },
+        { code: '83', name: 'ANTARTICA BOA LATA' },
+        { code: '227', name: 'VINHOS CRIVELIM' },
+        { code: '0', name: 'VINHOS DIVERSOS' },
+        { code: '0', name: 'COOLERS DIVERSOS' },
+        { code: '926', name: 'CER.SKOL BEATS LONG' },
+        { code: '3487', name: 'SMIRNOFF ICE' },
+        { code: '4258', name: 'VODKA ASKOV GIN ICE' },
+        { code: '993', name: 'VODKA ASKOV ICE' },
+        { code: '108', name: 'ORIGINAL LATA' },
+        { code: '85', name: 'SUB ZERO LATA' },
+        { code: '2572', name: 'BAVARIA LATA' },
+        { code: '724', name: 'BAVARIA LATÃO' },
+        { code: '2734', name: 'CERV. SKOL BEATS LATA' },
+        { code: '2279', name: 'JACK DANIELS COCA' },
+        { code: '3611', name: 'JACK DANIELS HONEY' },
+        { code: '1021', name: 'BURGUESA LATA' },
+        { code: '2389', name: 'SKOL LATA' },
+        { code: '964', name: 'BRAHMA LATA' },
+        { code: '1028', name: 'SKOL LATÃO' },
+        { code: '695', name: 'AMSTEL LATÃO' },
+        { code: '2942', name: 'SADIA HOT POCKET' },
+        { code: '2943', name: 'PIZZA' },
+        { code: '4142', name: 'PUDIM 500G' },
+        { code: '4143', name: 'PUDIM 1KG' },
+        { code: '974', name: 'RED BULL PEQ 250ML' },
+        { code: '2689', name: 'RED BULL MED 355ML' },
+        { code: '2692', name: 'RED BULL G 473ML' },
+        { code: '781', name: 'TNT P 269ML' },
+        { code: '3331', name: 'TNT G 473ML' },
+        { code: '3916', name: 'ENERG BALY LATA 473' },
+        { code: '2344', name: 'GATORADE DIVERSOS' },
+        { code: '680', name: 'POWERADE DIVERSOS' },
+        { code: '252', name: 'SPRITE FRESH' },
+        { code: '2336', name: 'H2O/LIMONETO' },
+        { code: '3636', name: 'CORONA LONG ZERO' },
+        { code: '273', name: 'HEINEKEN ZERO LONG' },
+        { code: '882', name: 'BRAHMA ZERO LATA' },
+        { code: '3070', name: '8 SEGUNDOS 1L' },
+        { code: '1414', name: 'TUBAINA PET 350 ML' },
+        { code: '2625', name: 'GUARANA 600ML' },
+        { code: '3125', name: 'SPRITE 600ML' },
+        { code: '1753', name: 'FANTA 600ML' },
+        { code: '3193', name: 'REFRI TUB. FUNADA 2L' },
+        { code: '152', name: 'FANTA 2L' },
+        { code: '154', name: 'GUARANA ANTARTIC 2L' },
+        { code: '291', name: 'SPRITE 2L' },
+        { code: '3187', name: 'COCA CAFÉ' },
+        { code: '3400', name: 'FANTA 220ML' },
+        { code: '302', name: 'SPRITE LATA' },
+        { code: '160', name: 'FANTA LATA' },
+        { code: '158', name: 'COCA LATA' },
+        { code: '4138', name: 'COPO DA FELICIDADE' },
+        { code: '4140', name: 'MOUSSE DE LIMÃO' },
+        { code: '4141', name: 'PUDIM PEQUENO' },
+        { code: '2680', name: 'PEPSI/TWIST LATA' },
+        { code: '126', name: 'GUARANA LATA' },
+        { code: '164', name: 'CITRUS LATA' },
+        { code: '113', name: 'TONICA LATA' },
+        { code: '754', name: 'COCA 1L' },
+        { code: '156', name: 'COCA 600ML' },
+        { code: '150', name: 'COCA 2L' },
+        { code: '15', name: 'MONSTER LATA 473ML' },
+        { code: '3210', name: 'KIBON POTE 800 ML' },
+        { code: '4412', name: 'GRESP PÃO DE BATATA' },
+        { code: '1126', name: 'PÃO DE QUEIJO' },
+        { code: '2278', name: 'SALGADOS RENATA' },
+        { code: '3807', name: 'SALGADOS DU MARIO' },
+        { code: '3454', name: 'SALGADOS MISTER' },
+        { code: '2949', name: 'CAFÉ CAP' },
+        { code: '1124', name: 'BEBIDAS NESTLE' },
+        { code: '1423', name: 'BONÉ DIVERSOS' },
+        { code: '794', name: 'PAÇOCA/DOCES DIV' },
+        { code: '3170', name: 'CHOC. TRENTO' },
+        { code: '434', name: 'CHOC. BATON' },
+        { code: '2635', name: 'MENTOS POTE' },
+        { code: '2347', name: 'CHOCO TALENTO' },
+        { code: '668', name: 'CHOCO KIT KAT' },
+        { code: '3796', name: 'CACHAÇA DI MINAS' },
+        { code: '4419', name: 'CAMISETAS YLD' }
+    ];
+
+    // Welcome Overlay Elements
+    const welcomeOverlay = document.getElementById('welcome-overlay');
+    const welcomeMessageTitle = document.getElementById('welcome-message-title');
+    const mainSidebar = document.getElementById('main-sidebar');
+
     // Login Logic
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -67,10 +261,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (validUsers.includes(user) && pass === '1') {
             currentUser = user.charAt(0).toUpperCase() + user.slice(1);
+            
+            // Show Welcome Message
             loginScreen.classList.add('hidden');
-            appContainer.classList.remove('hidden');
+            welcomeOverlay.classList.remove('hidden');
+            welcomeMessageTitle.textContent = `Bem-vindo, ${currentUser}!`;
+            
             document.getElementById('operator-name').textContent = currentUser;
             loginError.textContent = '';
+
+            // Transition to App after delay
+            setTimeout(() => {
+                welcomeOverlay.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+                // Default to Home tab
+                document.querySelector('.tab-btn[data-tab="home"]').click();
+            }, 2000);
+
         } else {
             loginError.textContent = 'Usuário ou senha incorretos.';
             passwordInput.value = '';
@@ -84,6 +291,8 @@ document.addEventListener('DOMContentLoaded', () => {
         usernameInput.value = '';
         passwordInput.value = '';
         resetCalculator();
+        // Reset to Home tab for next login (visually)
+        document.querySelector('.tab-btn[data-tab="home"]').click();
     });
 
     // Tabs Logic
@@ -105,6 +314,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetContent = document.getElementById(targetId);
             targetContent.classList.remove('hidden');
             targetContent.classList.add('active');
+
+            // Sidebar Visibility Logic
+            if (btn.dataset.tab === 'troco') {
+                mainSidebar.classList.remove('hidden');
+            } else {
+                mainSidebar.classList.add('hidden');
+            }
         });
     });
 
@@ -280,14 +496,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Shift Change Logic
+    // Shift Change Logic
     addShiftItemBtn.addEventListener('click', () => {
         const prod = shiftProdInput.value.trim();
         const code = shiftCodeInput.value.trim();
-        const qty = parseInt(shiftQtyInput.value);
-        const total = parseFloat(shiftTotalInput.value);
+        let qty = parseInt(shiftQtyInput.value);
+        let total = parseFloat(shiftTotalInput.value);
 
-        if (prod && code && qty > 0 && !isNaN(total)) {
-            shiftItems.push({ prod, code, qty, total });
+        // Default quantity to 1 if invalid or empty
+        if (isNaN(qty) || qty < 1) {
+            qty = 1;
+        }
+
+        // Allow total to be optional (NaN if empty)
+        // We only require Product Name. Code is optional but usually present.
+        if (prod) {
+            shiftItems.push({ prod, code, qty, total: isNaN(total) ? 0 : total });
             renderShiftItems();
             
             // Clear inputs
@@ -295,9 +519,52 @@ document.addEventListener('DOMContentLoaded', () => {
             shiftCodeInput.value = '';
             shiftQtyInput.value = '';
             shiftTotalInput.value = '';
-            shiftProdInput.focus();
+            shiftCodeInput.focus(); // Focus back to code
         } else {
-            alert('Preencha todos os campos corretamente.');
+            alert('O nome do produto é obrigatório.');
+        }
+    });
+
+    // Auto-fill Product Info
+    shiftCodeInput.addEventListener('input', () => {
+        const code = shiftCodeInput.value.trim();
+        const product = productDatabase.find(p => p.code === code);
+        if (product) {
+            shiftProdInput.value = product.name;
+        }
+    });
+
+    shiftProdInput.addEventListener('input', () => {
+        const name = shiftProdInput.value.trim().toUpperCase();
+        // Find exact match or partial match if needed. Using exact for now to avoid conflicts.
+        const product = productDatabase.find(p => p.name === name);
+        if (product) {
+            shiftCodeInput.value = product.code;
+        }
+    });
+
+    // Enter key navigation for Shift Change
+    shiftCodeInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const code = shiftCodeInput.value.trim();
+            const product = productDatabase.find(p => p.code === code);
+            
+            if (product) {
+                shiftProdInput.value = product.name;
+                shiftProdInput.focus();
+            } else {
+                shiftProdInput.value = '';
+                shiftCodeInput.focus();
+                shiftCodeInput.select();
+            }
+        }
+    });
+
+    shiftProdInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addShiftItemBtn.click();
         }
     });
 
@@ -305,16 +572,32 @@ document.addEventListener('DOMContentLoaded', () => {
         shiftList.innerHTML = '';
         shiftItems.forEach((item, index) => {
             const tr = document.createElement('tr');
+            const totalDisplay = item.total > 0 ? formatCurrency(item.total) : '-';
             tr.innerHTML = `
-                <td>${item.prod}</td>
                 <td>${item.code}</td>
+                <td>${item.prod}</td>
                 <td>${item.qty}</td>
-                <td>${formatCurrency(item.total)}</td>
-                <td><span class="remove-item" onclick="removeShiftItem(${index})">&times;</span></td>
+                <td>${totalDisplay}</td>
+                <td>
+                    <span class="action-btn edit" onclick="editShiftItem(${index})" style="cursor: pointer; margin-right: 10px;">✎</span>
+                    <span class="remove-item" onclick="removeShiftItem(${index})" style="cursor: pointer;">&times;</span>
+                </td>
             `;
             shiftList.appendChild(tr);
         });
     }
+
+    window.editShiftItem = function(index) {
+        const item = shiftItems[index];
+        shiftCodeInput.value = item.code;
+        shiftProdInput.value = item.prod;
+        shiftQtyInput.value = item.qty;
+        shiftTotalInput.value = item.total > 0 ? item.total : '';
+        
+        // Remove the item so it can be re-added (updated)
+        removeShiftItem(index);
+        shiftCodeInput.focus();
+    };
 
     window.removeShiftItem = function(index) {
         shiftItems.splice(index, 1);
