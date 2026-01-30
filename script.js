@@ -1,4 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // CONFIGURAÇÃO GOOGLE SHEETS
+    const URL_PLANILHA_TROCO = 'https://script.google.com/macros/s/AKfycbzHrQ3-H7mROc4sG_Pu4J9NHJmKhLDSbG5yqRxw1Pi_5MalnVADjttHZMw0Mn3NOT4/exec';
+    const URL_PLANILHA_VIRADA = ''; // Link para Virada de Caixa (Deixe vazio se não quiser usar)
+
+    async function sendToGoogleSheets(url, data) {
+        if (!url || url === 'URL_DA_SUA_PLANILHA_AQUI') return;
+        
+        try {
+            await fetch(url, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...data, user: currentUser })
+            });
+        } catch (error) {
+            console.error('Erro ao enviar para Google Sheets:', error);
+        }
+    }
+
     // DOM Elements
     const loginScreen = document.getElementById('login-screen');
     const appContainer = document.getElementById('app-container');
@@ -25,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const shiftTotalInput = document.getElementById('shift-total');
     const addShiftItemBtn = document.getElementById('add-shift-item-btn');
     const shiftList = document.getElementById('shift-list');
+    const shiftSuggestions = document.getElementById('shift-suggestions');
     const printShiftBtn = document.getElementById('print-shift-btn');
     const printHistoryBtn = document.getElementById('print-history-btn');
 
@@ -284,6 +304,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Login navigation with Enter
+    usernameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            passwordInput.focus();
+        }
+    });
+
     logoutBtn.addEventListener('click', () => {
         currentUser = null;
         loginScreen.classList.remove('hidden');
@@ -323,6 +351,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Disabled services logic removed to allow in-page 404 tabs
 
     // Calculator Logic
     function calculateChange() {
@@ -386,7 +416,11 @@ document.addEventListener('DOMContentLoaded', () => {
             { val: 1000, type: 'note', label: '10' },
             { val: 500, type: 'note', label: '5' },
             { val: 200, type: 'note', label: '2' },
-            { val: 100, type: 'coin', label: '1' }
+            { val: 100, type: 'coin', label: '1' },
+            { val: 50, type: 'coin', label: '0.50' },
+            { val: 25, type: 'coin', label: '0.25' },
+            { val: 10, type: 'coin', label: '0.10' },
+            { val: 5, type: 'coin', label: '0.05' }
         ];
 
         let remaining = Math.round(amount * 100);
@@ -414,10 +448,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const moneyVisual = document.createElement('div');
         if (denom.type === 'note') {
             moneyVisual.className = `note note-${denom.label}`;
-            moneyVisual.textContent = `R$ ${denom.label}`;
+            moneyVisual.innerHTML = `<span class="text-value">R$ ${denom.label}</span>`;
         } else {
-            moneyVisual.className = `coin coin-${denom.label.replace('.', '-')}`;
-            moneyVisual.textContent = denom.label;
+            // Replace dots with dashes for CSS classes (e.g., 0.50 -> 0-50)
+            const coinClass = denom.label.replace(/\./g, '-');
+            moneyVisual.className = `coin coin-${coinClass}`;
+            moneyVisual.innerHTML = `<span class="text-value">${denom.label}</span>`;
         }
 
         wrapper.appendChild(countBadge);
@@ -445,6 +481,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         transactions.unshift(transaction);
         renderHistory();
+
+        // Enviar para Google Sheets (Troco)
+        sendToGoogleSheets(URL_PLANILHA_TROCO, {
+            type: 'TROCO',
+            charge: charge,
+            paid: paid,
+            change: change
+        });
     }
 
     function renderHistory() {
@@ -463,6 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const itemsCount = t.items.length > 0 ? `<div style="font-size: 0.8rem; color: #666; margin-top: 5px;">${t.items.length} item(s)</div>` : '';
 
             item.innerHTML = `
+                <div class="status-bar"></div>
                 <span class="time">${timeString}</span>
                 <div class="details">
                     <span>Cobrado:</span>
@@ -474,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <span class="change-highlight">Troco: ${formatCurrency(t.change)}</span>
                 ${itemsCount}
-                <div class="history-actions">
+                <div class="history-actions" style="display: flex; gap: 12px; margin-top: 15px; border-top: 1px solid #eee; pt: 10px;">
                     <button class="action-btn edit" onclick="openEditModal(${t.id})">Editar</button>
                     <button class="action-btn delete" onclick="requestDelete(${t.id})">Excluir</button>
                 </div>
@@ -511,8 +556,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // Allow total to be optional (NaN if empty)
         // We only require Product Name. Code is optional but usually present.
         if (prod) {
-            shiftItems.push({ prod, code, qty, total: isNaN(total) ? 0 : total });
+            const item = { prod, code, qty, total: isNaN(total) ? 0 : total };
+            shiftItems.push(item);
             renderShiftItems();
+
+            // Enviar para Google Sheets (Virada)
+            sendToGoogleSheets(URL_PLANILHA_VIRADA, {
+                type: 'VIRADA',
+                code: item.code,
+                product: item.prod,
+                qty: item.qty,
+                total: item.total
+            });
             
             // Clear inputs
             shiftProdInput.value = '';
@@ -535,11 +590,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     shiftProdInput.addEventListener('input', () => {
-        const name = shiftProdInput.value.trim().toUpperCase();
-        // Find exact match or partial match if needed. Using exact for now to avoid conflicts.
-        const product = productDatabase.find(p => p.name === name);
-        if (product) {
-            shiftCodeInput.value = product.code;
+        const query = shiftProdInput.value.trim().toUpperCase();
+        shiftSuggestions.innerHTML = '';
+        
+        if (query.length < 2) {
+            shiftSuggestions.classList.add('hidden');
+            return;
+        }
+
+        const matches = productDatabase.filter(p => p.name.includes(query)).slice(0, 5);
+        
+        if (matches.length > 0) {
+            matches.forEach(product => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.innerHTML = `
+                    <span>${product.name}</span>
+                    <span class="item-code">${product.code}</span>
+                `;
+                item.addEventListener('click', () => {
+                    shiftProdInput.value = product.name;
+                    shiftCodeInput.value = product.code;
+                    shiftSuggestions.classList.add('hidden');
+                    shiftQtyInput.focus();
+                });
+                shiftSuggestions.appendChild(item);
+            });
+            shiftSuggestions.classList.remove('hidden');
+        } else {
+            shiftSuggestions.classList.add('hidden');
+        }
+    });
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!shiftProdInput.contains(e.target) && !shiftSuggestions.contains(e.target)) {
+            shiftSuggestions.classList.add('hidden');
         }
     });
 
@@ -552,16 +638,36 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (product) {
                 shiftProdInput.value = product.name;
-                shiftProdInput.focus();
+                shiftQtyInput.focus();
             } else {
-                shiftProdInput.value = '';
-                shiftCodeInput.focus();
-                shiftCodeInput.select();
+                shiftProdInput.focus();
             }
         }
     });
 
     shiftProdInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            // If there's an exact match or first suggestion, we can auto-select it
+            const query = shiftProdInput.value.trim().toUpperCase();
+            const product = productDatabase.find(p => p.name.includes(query));
+            if (product) {
+                shiftProdInput.value = product.name;
+                shiftCodeInput.value = product.code;
+            }
+            shiftSuggestions.classList.add('hidden');
+            shiftQtyInput.focus();
+        }
+    });
+
+    shiftQtyInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            shiftTotalInput.focus();
+        }
+    });
+
+    shiftTotalInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             addShiftItemBtn.click();
@@ -579,8 +685,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${item.qty}</td>
                 <td>${totalDisplay}</td>
                 <td>
-                    <span class="action-btn edit" onclick="editShiftItem(${index})" style="cursor: pointer; margin-right: 10px;">✎</span>
-                    <span class="remove-item" onclick="removeShiftItem(${index})" style="cursor: pointer;">&times;</span>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="action-btn edit" onclick="editShiftItem(${index})" style="padding: 4px 8px; font-size: 0.8rem; background: var(--primary-blue); color: white; border-radius: 6px; border: none; cursor: pointer;">✎</button>
+                        <button class="action-btn delete" onclick="removeShiftItem(${index})" style="padding: 4px 8px; font-size: 0.8rem; background: #dc2626; color: white; border-radius: 6px; border: none; cursor: pointer;">&times;</button>
+                    </div>
                 </td>
             `;
             shiftList.appendChild(tr);
@@ -640,6 +748,13 @@ document.addEventListener('DOMContentLoaded', () => {
             transactionToDeleteId = null;
         } else {
             passwordError.textContent = 'Senha incorreta.';
+        }
+    });
+
+    adminPasswordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            confirmDeleteBtn.click();
         }
     });
 
@@ -709,4 +824,252 @@ document.addEventListener('DOMContentLoaded', () => {
     amountChargeInput.addEventListener('input', calculateChange);
     amountPaidInput.addEventListener('input', calculateChange);
 
+    // Enter key navigation for Troco
+    amountChargeInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            amountPaidInput.focus();
+        }
+    });
+
+    amountPaidInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            if (!finalizeBtn.classList.contains('hidden')) {
+                e.preventDefault();
+                finalizeBtn.click();
+            }
+        }
+    });
+
+    // --- Game Selection Logic ---
+    window.switchGame = function(game) {
+        document.getElementById('game-selector').classList.add('hidden');
+        if (game === 'rush') {
+            document.getElementById('game-rush').classList.remove('hidden');
+            initRushGame();
+        } else if (game === 'catch') {
+            document.getElementById('game-catch').classList.remove('hidden');
+            initCatchGame();
+        }
+    };
+
+    window.backToSelector = function() {
+        document.getElementById('game-rush').classList.add('hidden');
+        document.getElementById('game-catch').classList.add('hidden');
+        document.getElementById('game-selector').classList.remove('hidden');
+        stopAllGames();
+    };
+
+    function stopAllGames() {
+        if (pumpingInterval) clearInterval(pumpingInterval);
+        if (catchInterval) clearInterval(catchInterval);
+        if (itemSpawnInterval) clearInterval(itemSpawnInterval);
+    }
+
+    // --- Minigame 1 Logic: Frentista Rush ---
+    const abastecerBtn = document.getElementById('abastecer-btn');
+    const fuelGauge = document.getElementById('fuel-gauge');
+    const fuelCounter = document.getElementById('fuel-counter');
+    const targetAmountDisplay = document.getElementById('target-amount');
+    const gameScoreDisplay = document.getElementById('game-score');
+    const gameMessage = document.getElementById('game-message');
+    const scoreHistoryList = document.getElementById('score-history');
+
+    let currentFuel = 0;
+    let targetFuel = 50;
+    let gameScore = 0;
+    let pumpingInterval = null;
+    let gameActive = true;
+    let highScores = JSON.parse(localStorage.getItem('postoFacilScores') || '[]');
+
+    function initRushGame() {
+        currentFuel = 0;
+        targetFuel = parseFloat(Math.random() * 80 + 20).toFixed(2);
+        if (targetAmountDisplay) targetAmountDisplay.textContent = targetFuel;
+        updateRushUI();
+        gameActive = true;
+        if (gameMessage) {
+            gameMessage.textContent = 'Segure para encher o tanque!';
+            gameMessage.style.color = '#666';
+        }
+    }
+
+    function updateRushUI() {
+        if (fuelCounter) fuelCounter.textContent = `R$ ${currentFuel.toFixed(2)}`;
+        const percentage = Math.min((currentFuel / targetFuel) * 100, 100);
+        if (fuelGauge) {
+            fuelGauge.style.height = `${percentage}%`;
+            fuelGauge.style.background = currentFuel > targetFuel ? '#dc2626' : 'var(--primary-yellow)';
+        }
+    }
+
+    function finishRushRound() {
+        gameActive = false;
+        const diff = Math.abs(currentFuel - targetFuel);
+        let roundPoints = 0;
+
+        if (currentFuel > targetFuel) {
+            gameMessage.textContent = '❌ EXCEDEU O LIMITE! Perdeu 10 pontos.';
+            gameMessage.style.color = '#dc2626';
+            roundPoints = -10;
+        } else if (diff <= 0.05) {
+            gameMessage.textContent = '🎯 PERFEITO! +100 Pontos';
+            gameMessage.style.color = '#059669';
+            roundPoints = 100;
+        } else if (diff <= 0.50) {
+            gameMessage.textContent = '⚡ QUASE LÁ! +50 Pontos';
+            gameMessage.style.color = '#0284c7';
+            roundPoints = 50;
+        } else if (diff <= 2.00) {
+            gameMessage.textContent = '👍 BOM TRABALHO! +20 Pontos';
+            gameMessage.style.color = '#0f172a';
+            roundPoints = 20;
+        } else {
+            gameMessage.textContent = '🐢 MUITO LONGE! +5 Pontos';
+            gameMessage.style.color = '#64748b';
+            roundPoints = 5;
+        }
+
+        saveHighScore(roundPoints);
+        setTimeout(initRushGame, 2000);
+    }
+
+    function saveHighScore(points) {
+        gameScore += points;
+        gameScoreDisplay.textContent = gameScore;
+        document.getElementById('catch-score').textContent = gameScore;
+        
+        highScores.unshift({ points, date: new Date().toLocaleTimeString(), totalScore: gameScore });
+        highScores = highScores.slice(0, 5); 
+        localStorage.setItem('postoFacilScores', JSON.stringify(highScores));
+        renderScoreHistory();
+    }
+
+    function renderScoreHistory() {
+        if (!scoreHistoryList) return;
+        scoreHistoryList.innerHTML = highScores.map(s => `
+            <li>
+                <span>${s.date}</span>
+                <strong style="color: ${s.points > 0 ? '#059669' : '#dc2626'}">${s.points > 0 ? '+' : ''}${s.points} pts</strong>
+            </li>
+        `).join('');
+    }
+
+    if (abastecerBtn) {
+        abastecerBtn.addEventListener('mousedown', () => {
+            if (!gameActive) return;
+            pumpingInterval = setInterval(() => {
+                currentFuel += 0.23;
+                updateRushUI();
+                if (currentFuel > targetFuel + 5) {
+                    clearInterval(pumpingInterval);
+                    finishRushRound();
+                }
+            }, 30);
+        });
+
+        abastecerBtn.addEventListener('mouseup', () => {
+            if (pumpingInterval) {
+                clearInterval(pumpingInterval);
+                if (gameActive) finishRushRound();
+            }
+        });
+
+        abastecerBtn.addEventListener('mouseleave', () => {
+            if (pumpingInterval) {
+                clearInterval(pumpingInterval);
+                if (gameActive) finishRushRound();
+            }
+        });
+
+        abastecerBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            abastecerBtn.dispatchEvent(new Event('mousedown'));
+        });
+        abastecerBtn.addEventListener('touchend', () => {
+            abastecerBtn.dispatchEvent(new Event('mouseup'));
+        });
+    }
+
+    // --- Minigame 2 Logic: Conveniência Catch ---
+    const catchArea = document.getElementById('catch-area');
+    const basket = document.getElementById('basket');
+    const moveLeftBtn = document.getElementById('move-left');
+    const moveRightBtn = document.getElementById('move-right');
+    
+    let basketPos = 50; // percentage
+    let catchInterval = null;
+    let itemSpawnInterval = null;
+    const items = ['🧴', '🥤', '🍟', '🍞', '🍫', '🍻'];
+    
+    function initCatchGame() {
+        basketPos = 50;
+        updateBasketPos();
+        gameScore = 0;
+        document.getElementById('catch-score').textContent = '0';
+        gameActive = true;
+        
+        startSpawning();
+        renderScoreHistory();
+    }
+    
+    function updateBasketPos() {
+        basket.style.left = `${basketPos}%`;
+    }
+    
+    function moveBasket(dir) {
+        if (!gameActive) return;
+        basketPos = Math.max(5, Math.min(95, basketPos + dir * 8));
+        updateBasketPos();
+    }
+    
+    moveLeftBtn.addEventListener('click', () => moveBasket(-1));
+    moveRightBtn.addEventListener('click', () => moveBasket(1));
+    
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') moveBasket(-1);
+        if (e.key === 'ArrowRight') moveBasket(1);
+    });
+    
+    function startSpawning() {
+        itemSpawnInterval = setInterval(() => {
+            if (!gameActive) return;
+            const item = document.createElement('div');
+            item.className = 'falling-item';
+            item.textContent = items[Math.floor(Math.random() * items.length)];
+            item.style.left = `${Math.random() * 90 + 5}%`;
+            item.style.top = '0px';
+            catchArea.appendChild(item);
+            
+            let pos = 0;
+            const fall = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(fall);
+                    item.remove();
+                    return;
+                }
+                
+                pos += 3;
+                item.style.top = `${pos}px`;
+                
+                // Collision check
+                if (pos > 250 && pos < 280) {
+                    const itemRange = parseFloat(item.style.left);
+                    if (Math.abs(itemRange - basketPos) < 10) {
+                        saveHighScore(10);
+                        item.remove();
+                        clearInterval(fall);
+                    }
+                }
+                
+                if (pos > 300) {
+                    item.remove();
+                    clearInterval(fall);
+                }
+            }, 20);
+        }, 1200);
+    }
+
+    renderScoreHistory();
 });

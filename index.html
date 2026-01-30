@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CaixaFacil - Aurion Solutions</title>
+    <title>PostoFacil</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -15,8 +15,8 @@
     <div id="login-screen" class="login-container">
         <div class="login-box">
             <!-- Logo removed -->
-            <h2>Bem-vindo ao CaixaFacil</h2>
-            <p>Sistema de Caixa - Aurion Solutions</p>
+            <h2>Bem-vindo ao PostoFacil</h2>
+            <p>Sistema de Caixa Inteligente</p>
             <form id="login-form">
                 <div class="input-group">
                     <label for="username">Usuário</label>
@@ -34,9 +34,13 @@
 
     <!-- Welcome Overlay -->
     <div id="welcome-overlay" class="welcome-overlay hidden">
-        <div class="welcome-content">
+        <div class="welcome-card">
+            <div class="welcome-icon">👋</div>
             <h2 id="welcome-message-title">Bem-vindo!</h2>
-            <p class="welcome-subtitle">Bom Trabalho!</p>
+            <p class="welcome-subtitle">Bom Trabalho e Boas Vendas!</p>
+            <div class="loader-bar">
+                <div class="loader-progress"></div>
+            </div>
         </div>
     </div>
 
@@ -45,8 +49,10 @@
         <!-- Sidebar History -->
         <aside id="main-sidebar" class="sidebar">
             <div class="sidebar-header">
-                <h3>Histórico Recente</h3>
-                <button id="print-history-btn" class="btn-secondary small-btn" style="margin-top: 10px; width: 100%;">Imprimir Histórico</button>
+                <h3>📜 Histórico Reais</h3>
+                <button id="print-history-btn" class="btn-history-print">
+                    🖨️ Imprimir Histórico
+                </button>
             </div>
             <div id="history-list" class="history-list">
                 <!-- History items will be injected here -->
@@ -60,8 +66,8 @@
                 <div class="logo-area">
                     <!-- Logo removed -->
                     <div>
-                        <h1>CaixaFacil</h1>
-                        <span class="subtitle">Desenvolvido por Aurion Solutions</span>
+                        <h1>PostoFacil</h1>
+                        <span class="subtitle">Gestão de Pista & Conveniência</span>
                     </div>
                 </div>
                 <div class="user-info">
@@ -76,13 +82,18 @@
                     <button class="tab-btn active" data-tab="home">Início</button>
                     <button class="tab-btn" data-tab="troco">Troco</button>
                     <button class="tab-btn" data-tab="virada">Virada Caixa</button>
+                    <button class="tab-btn disabled-service" data-tab="contagem">Contagem</button>
+                    <button class="tab-btn disabled-service" data-tab="conveniencia">Conveniência</button>
+                    <button class="tab-btn disabled-service" data-tab="pitstop">Pitstop</button>
+                    <button class="tab-btn disabled-service" data-tab="oleo">Óleo</button>
+                    <button class="tab-btn" data-tab="minigame">Minigame</button>
                 </div>
 
                 <!-- Tab: Home -->
                 <div id="tab-home" class="tab-content active">
                     <div class="home-container">
-                        <h2 style="font-size: 3rem; color: #0033cc; margin-bottom: 10px;">CaixaFacil</h2>
-                        <p style="font-size: 1.2rem; color: #666;">Sistema de Gestão de Caixa</p>
+                        <h2 style="font-size: 3rem; color: #0033cc; margin-bottom: 10px;">PostoFacil</h2>
+                        <p style="font-size: 1.2rem; color: #666;">Sistema Integrado de Gestão</p>
                         <div style="margin-top: 40px; opacity: 0.5;">
                             <p>Selecione uma opção acima para iniciar.</p>
                         </div>
@@ -122,33 +133,166 @@
                 <!-- Tab: Virada Caixa -->
                 <div id="tab-virada" class="tab-content hidden">
                     <div class="shift-change-container">
-                        <h3>Virada de Caixa: Anote aqui os itens vendidos</h3>
+                        <div class="shift-header">
+                            <div class="shift-title-group">
+                                <h3>📋 Virada de Caixa</h3>
+                                <p>Anote aqui os produtos vendidos no turno</p>
+                            </div>
+                            <button id="print-shift-btn" class="btn-primary small-btn" style="background: var(--primary-yellow); color: var(--primary-blue);">
+                                🖨️ Imprimir Virada
+                            </button>
+                        </div>
                         
-                        <div class="shift-inputs">
-                            <input type="text" id="shift-code" placeholder="Cód" style="width: 70px; flex: none;">
-                            <input type="text" id="shift-prod" placeholder="Produto" style="flex: 1;">
-                            <input type="number" id="shift-qty" placeholder="Qtd" min="1" style="width: 60px; flex: none;">
-                            <input type="number" id="shift-total" placeholder="Total" step="0.01" style="width: 80px; flex: none;">
-                            <button id="add-shift-item-btn" class="btn-primary" style="padding: 0 15px;">+</button>
+                        <div class="shift-form-card">
+                            <div class="shift-inputs">
+                                <div class="input-field">
+                                    <label>Cód</label>
+                                    <input type="text" id="shift-code" placeholder="000">
+                                </div>
+                                <div class="input-field" style="position: relative;">
+                                    <label for="shift-prod">Produto</label>
+                                    <input type="text" id="shift-prod" placeholder="Nome do Produto" autocomplete="off">
+                                    <div id="shift-suggestions" class="suggestions-list hidden"></div>
+                                </div>
+                                <div class="input-field">
+                                    <label>Qtd</label>
+                                    <input type="number" id="shift-qty" placeholder="1">
+                                </div>
+                                <div class="input-field">
+                                    <label>Total (R$)</label>
+                                    <input type="number" id="shift-total" step="0.01" placeholder="0,00">
+                                </div>
+                                <button id="add-shift-item-btn" class="btn-primary add-item-big">+</button>
+                            </div>
                         </div>
 
-                        <table class="shift-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 60px;">Cód</th>
-                                    <th>Produto</th>
-                                    <th style="width: 50px;">Qtd</th>
-                                    <th style="width: 80px;">Total</th>
-                                    <th style="width: 70px;">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="shift-list">
-                                <!-- Items go here -->
-                            </tbody>
-                        </table>
-                        
-                        <div class="shift-actions">
-                             <button id="print-shift-btn" class="btn-secondary" style="color: #333; border-color: #333;">Imprimir Virada</button>
+                        <div class="table-container">
+                            <table class="shift-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 80px;">Cód</th>
+                                        <th>Produto</th>
+                                        <th style="width: 70px;">Qtd</th>
+                                        <th style="width: 100px;">Total</th>
+                                        <th style="width: 90px;">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="shift-list"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs: Services in Development -->
+                <div id="tab-contagem" class="tab-content hidden">
+                    <div class="error-404-container">
+                        <div class="error-content">
+                            <span class="error-icon">⚠️</span>
+                            <h2>ERROR</h2>
+                            <p style="font-size: 1.5rem; font-weight: 800; color: #dc2626;">SERVIÇO INDISPONIVEL</p>
+                            <button class="btn-primary" onclick="document.querySelector('[data-tab=\'home\']').click()">Voltar ao inicio</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-conveniencia" class="tab-content hidden">
+                    <div class="error-404-container">
+                        <div class="error-content">
+                            <span class="error-icon">⚠️</span>
+                            <h2>ERROR</h2>
+                            <p style="font-size: 1.5rem; font-weight: 800; color: #dc2626;">SERVIÇO INDISPONIVEL</p>
+                            <button class="btn-primary" onclick="document.querySelector('[data-tab=\'home\']').click()">Voltar ao inicio</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-pitstop" class="tab-content hidden">
+                    <div class="error-404-container">
+                        <div class="error-content">
+                            <span class="error-icon">⚠️</span>
+                            <h2>ERROR</h2>
+                            <p style="font-size: 1.5rem; font-weight: 800; color: #dc2626;">SERVIÇO INDISPONIVEL</p>
+                            <button class="btn-primary" onclick="document.querySelector('[data-tab=\'home\']').click()">Voltar ao inicio</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-oleo" class="tab-content hidden">
+                    <div class="error-404-container">
+                        <div class="error-content">
+                            <span class="error-icon">⚠️</span>
+                            <h2>ERROR</h2>
+                            <p style="font-size: 1.5rem; font-weight: 800; color: #dc2626;">SERVIÇO INDISPONIVEL</p>
+                            <button class="btn-primary" onclick="document.querySelector('[data-tab=\'home\']').click()">Voltar ao inicio</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab-minigame" class="tab-content hidden">
+                    <div class="game-container">
+                        <!-- Game Selector -->
+                        <div id="game-selector" class="game-selector">
+                            <h2 style="margin-bottom: 30px; color: var(--primary-blue);">ESCOLHA SEU DESAFIO</h2>
+                            <div class="game-cards">
+                                <div class="game-card" onclick="switchGame('rush')">
+                                    <span style="font-size: 3rem;">⛽</span>
+                                    <h4>Frentista Rush</h4>
+                                    <p>Abasteça com precisão!</p>
+                                </div>
+                                <div class="game-card" onclick="switchGame('catch')">
+                                    <span style="font-size: 3rem;">🛒</span>
+                                    <h4>Conveniência Catch</h4>
+                                    <p>Pegue os produtos!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Game 1: Frentista Rush -->
+                        <div id="game-rush" class="hidden">
+                            <div class="game-header">
+                                <div class="score-board">Pontos: <span id="game-score">0</span></div>
+                                <button class="btn-primary" onclick="backToSelector()" style="padding: 5px 15px; font-size: 0.8rem;">Voltar</button>
+                            </div>
+
+                            <div class="target-info">🏆 Meta: R$ <span id="target-amount">50.00</span></div>
+                            <p id="game-message" style="font-weight: 700; color: #666;">Encha o tanque sem ultrapassar!</p>
+
+                            <div class="fuel-area">
+                                <div id="fuel-gauge" class="fuel-gauge" style="height: 0%;"></div>
+                                <div class="car-box">🚗</div>
+                                <div id="fuel-counter" style="position: absolute; top: 20px; font-weight: 950; font-size: 2.5rem; color: var(--primary-blue); text-shadow: 2px 2px white;">R$ 0.00</div>
+                            </div>
+
+                            <div class="game-btn-container">
+                                <button id="abastecer-btn" class="game-btn">
+                                    <span>SEGURE PARA</span>
+                                    <span style="font-size: 1.5rem;">ABASTECER</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Game 2: Conveniência Catch -->
+                        <div id="game-catch" class="hidden">
+                            <div class="game-header">
+                                <div class="score-board">Pontos: <span id="catch-score">0</span></div>
+                                <button class="btn-primary" onclick="backToSelector()" style="padding: 5px 15px; font-size: 0.8rem;">Voltar</button>
+                            </div>
+                            
+                            <p style="font-weight: 700; color: #666; margin-bottom: 10px;">Mova a cesta para pegar os produtos!</p>
+                            
+                            <div id="catch-area" class="catch-area">
+                                <div id="basket" class="basket">🛒</div>
+                            </div>
+                            
+                            <div class="game-controls">
+                                <button class="btn-secondary" id="move-left">◀ ESQUERDA</button>
+                                <button class="btn-secondary" id="move-right">DIREITA ▶</button>
+                            </div>
+                        </div>
+
+                        <!-- Shared History -->
+                        <div class="high-scores" style="margin-top: 20px;">
+                            <h4>🏆 Melhores Pontuações</h4>
+                            <ul id="score-history"></ul>
                         </div>
                     </div>
                 </div>
@@ -164,8 +308,8 @@
             <input type="password" id="admin-password" placeholder="Senha">
             <p id="password-error" class="error-message"></p>
             <div class="modal-actions">
-                <button id="cancel-delete" class="btn-secondary" style="color: #333; border-color: #333;">Cancelar</button>
-                <button id="confirm-delete" class="btn-primary">Confirmar</button>
+                <button id="cancel-delete" class="btn-modal-cancel">Cancelar</button>
+                <button id="confirm-delete" class="btn-modal-confirm">Confirmar</button>
             </div>
         </div>
     </div>
