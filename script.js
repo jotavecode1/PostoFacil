@@ -1,7 +1,7 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // CONFIGURAÇÃO GOOGLE SHEETS
+﻿document.addEventListener('DOMContentLoaded', () => {
+    // CONFIGURAÃ‡ÃƒO GOOGLE SHEETS
     const URL_PLANILHA_TROCO = 'https://script.google.com/macros/s/AKfycbzHrQ3-H7mROc4sG_Pu4J9NHJmKhLDSbG5yqRxw1Pi_5MalnVADjttHZMw0Mn3NOT4/exec';
-    const URL_PLANILHA_VIRADA = ''; // Link para Virada de Caixa (Deixe vazio se não quiser usar)
+    const URL_PLANILHA_VIRADA = ''; // Link para Virada de Caixa (Deixe vazio se nÃ£o quiser usar)
 
     async function sendToGoogleSheets(url, data) {
         if (!url || url === 'URL_DA_SUA_PLANILHA_AQUI') return;
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { code: '3593', name: 'SEDA SMOKING' },
         { code: '3656', name: 'OCULOS BR BRASIL' },
         { code: '648', name: 'CARVAO VILA RICA' },
-        { code: '2250', name: 'CARVAO SÃO JOSÉ' },
+        { code: '2250', name: 'CARVAO SÃƒO JOSÃ‰' },
         { code: '582', name: 'ERVA YACUI NATURAL' },
         { code: '519', name: 'CHOCO KINDER OVO' },
         { code: '130', name: 'KINDER JOY' },
@@ -102,19 +102,19 @@ document.addEventListener('DOMContentLoaded', () => {
         { code: '308', name: 'CHOCO BIS CAIXA' },
         { code: '397', name: 'LEITE LIDER' },
         { code: '319', name: 'MIOJO NISSIN' },
-        { code: '757', name: 'CAFÉ JAGUARI' },
-        { code: '3620', name: 'CAFÉ CABOCLO' },
+        { code: '757', name: 'CAFÃ‰ JAGUARI' },
+        { code: '3620', name: 'CAFÃ‰ CABOCLO' },
         { code: '3157', name: 'LEITE CONDENSADO' },
         { code: '2475', name: 'CREME DE LEITE' },
         { code: '1141', name: 'NESCAU 2.0' },
         { code: '3116', name: 'LEITE NINHO LATA' },
         { code: '2695', name: 'BALA FINI' },
         { code: '3171', name: 'BISCOITO TRAKINAS' },
-        { code: '1224', name: 'PULLMAN PÃO FORMA' },
+        { code: '1224', name: 'PULLMAN PÃƒO FORMA' },
         { code: '1225', name: 'PULLMAN' },
         { code: '3249', name: 'BOM AR' },
         { code: '3248', name: 'AMACIANTE DIVERSOS' },
-        { code: '1250', name: 'SABÃO EM PÓ OMO' },
+        { code: '1250', name: 'SABÃƒO EM PÃ“ OMO' },
         { code: '2478', name: 'SABONETE DIVERSOS' },
         { code: '2986', name: 'GILLETE/PRESTOBARBA' },
         { code: '2619', name: 'ABSORVENTE' },
@@ -135,13 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
         { code: '2770', name: 'BATATA PRINGLES' },
         { code: '703', name: 'ELMA BATATA STAX' },
         { code: '2262', name: 'ELMA FANDANGOS 105' },
-        { code: '376', name: 'ELMA SENSAÇÕES' },
+        { code: '376', name: 'ELMA SENSAÃ‡Ã•ES' },
         { code: '2265', name: 'ELMA CHEETOS 105 GR' },
         { code: '410', name: 'ELMA CEBOLITOS' },
         { code: '2599', name: 'ELMA BACONZITO' },
         { code: '3596', name: 'MANTEIGA' },
         { code: '1149', name: 'MARGARINA QUALY' },
-        { code: '1150', name: 'REQUEIJÃO CREMOSO' },
+        { code: '1150', name: 'REQUEIJÃƒO CREMOSO' },
         { code: '144', name: 'TODDYNHO' },
         { code: '1972', name: 'NESTLE NESCAU FATOR' },
         { code: '1020', name: 'AGUA DE COCO' },
@@ -153,9 +153,9 @@ document.addEventListener('DOMContentLoaded', () => {
         { code: '4137', name: 'SUCO PRATS 1,5L' },
         { code: '4391', name: 'SUCO LIFE 1,5L' },
         { code: '78', name: 'SUCO DEL VALE PET' },
-        { code: '2684', name: 'CHÁ FUZE LEÃO ICE TEA' },
-        { code: '3048', name: 'PERDIGÃO MORTADELA' },
-        { code: '3212', name: 'COCA/PEPSI… 200ML' },
+        { code: '2684', name: 'CHÃ FUZE LEÃƒO ICE TEA' },
+        { code: '3048', name: 'PERDIGÃƒO MORTADELA' },
+        { code: '3212', name: 'COCA/PEPSIâ€¦ 200ML' },
         { code: '302', name: 'SPRITE LATA' },
         { code: '2195', name: 'AGUA CRYSTAL 500ML' },
         { code: '2318', name: 'AGUA CRYSTAL 1,5 LT' },
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { code: '537', name: 'STELLA LONG' },
         { code: '3903', name: 'SPATEN LONG' },
         { code: '3206', name: 'CORONA LONG' },
-        { code: '4030', name: 'IMPÉRIO LONG' },
+        { code: '4030', name: 'IMPÃ‰RIO LONG' },
         { code: '1899', name: 'SPATEN LATA' },
         { code: '3015', name: 'IMPERIO LATA' },
         { code: '638', name: 'VODKA SMIRNOFF 1L' },
@@ -198,15 +198,15 @@ document.addEventListener('DOMContentLoaded', () => {
         { code: '108', name: 'ORIGINAL LATA' },
         { code: '85', name: 'SUB ZERO LATA' },
         { code: '2572', name: 'BAVARIA LATA' },
-        { code: '724', name: 'BAVARIA LATÃO' },
+        { code: '724', name: 'BAVARIA LATÃƒO' },
         { code: '2734', name: 'CERV. SKOL BEATS LATA' },
         { code: '2279', name: 'JACK DANIELS COCA' },
         { code: '3611', name: 'JACK DANIELS HONEY' },
         { code: '1021', name: 'BURGUESA LATA' },
         { code: '2389', name: 'SKOL LATA' },
         { code: '964', name: 'BRAHMA LATA' },
-        { code: '1028', name: 'SKOL LATÃO' },
-        { code: '695', name: 'AMSTEL LATÃO' },
+        { code: '1028', name: 'SKOL LATÃƒO' },
+        { code: '695', name: 'AMSTEL LATÃƒO' },
         { code: '2942', name: 'SADIA HOT POCKET' },
         { code: '2943', name: 'PIZZA' },
         { code: '4142', name: 'PUDIM 500G' },
@@ -233,13 +233,13 @@ document.addEventListener('DOMContentLoaded', () => {
         { code: '152', name: 'FANTA 2L' },
         { code: '154', name: 'GUARANA ANTARTIC 2L' },
         { code: '291', name: 'SPRITE 2L' },
-        { code: '3187', name: 'COCA CAFÉ' },
+        { code: '3187', name: 'COCA CAFÃ‰' },
         { code: '3400', name: 'FANTA 220ML' },
         { code: '302', name: 'SPRITE LATA' },
         { code: '160', name: 'FANTA LATA' },
         { code: '158', name: 'COCA LATA' },
         { code: '4138', name: 'COPO DA FELICIDADE' },
-        { code: '4140', name: 'MOUSSE DE LIMÃO' },
+        { code: '4140', name: 'MOUSSE DE LIMÃƒO' },
         { code: '4141', name: 'PUDIM PEQUENO' },
         { code: '2680', name: 'PEPSI/TWIST LATA' },
         { code: '126', name: 'GUARANA LATA' },
@@ -250,21 +250,21 @@ document.addEventListener('DOMContentLoaded', () => {
         { code: '150', name: 'COCA 2L' },
         { code: '15', name: 'MONSTER LATA 473ML' },
         { code: '3210', name: 'KIBON POTE 800 ML' },
-        { code: '4412', name: 'GRESP PÃO DE BATATA' },
-        { code: '1126', name: 'PÃO DE QUEIJO' },
+        { code: '4412', name: 'GRESP PÃƒO DE BATATA' },
+        { code: '1126', name: 'PÃƒO DE QUEIJO' },
         { code: '2278', name: 'SALGADOS RENATA' },
         { code: '3807', name: 'SALGADOS DU MARIO' },
         { code: '3454', name: 'SALGADOS MISTER' },
-        { code: '2949', name: 'CAFÉ CAP' },
+        { code: '2949', name: 'CAFÃ‰ CAP' },
         { code: '1124', name: 'BEBIDAS NESTLE' },
-        { code: '1423', name: 'BONÉ DIVERSOS' },
-        { code: '794', name: 'PAÇOCA/DOCES DIV' },
+        { code: '1423', name: 'BONÃ‰ DIVERSOS' },
+        { code: '794', name: 'PAÃ‡OCA/DOCES DIV' },
         { code: '3170', name: 'CHOC. TRENTO' },
         { code: '434', name: 'CHOC. BATON' },
         { code: '2635', name: 'MENTOS POTE' },
         { code: '2347', name: 'CHOCO TALENTO' },
         { code: '668', name: 'CHOCO KIT KAT' },
-        { code: '3796', name: 'CACHAÇA DI MINAS' },
+        { code: '3796', name: 'CACHAÃ‡A DI MINAS' },
         { code: '4419', name: 'CAMISETAS YLD' }
     ];
 
@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 2000);
 
         } else {
-            loginError.textContent = 'Usuário ou senha incorretos.';
+            loginError.textContent = 'UsuÃ¡rio ou senha incorretos.';
             passwordInput.value = '';
         }
     });
@@ -495,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
         historyList.innerHTML = '';
         
         if (transactions.length === 0) {
-            historyList.innerHTML = '<div class="empty-history">Nenhuma transação recente.</div>';
+            historyList.innerHTML = '<div class="empty-history">Nenhuma transaÃ§Ã£o recente.</div>';
             return;
         }
 
@@ -576,7 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
             shiftTotalInput.value = '';
             shiftCodeInput.focus(); // Focus back to code
         } else {
-            alert('O nome do produto é obrigatório.');
+            alert('O nome do produto Ã© obrigatÃ³rio.');
         }
     });
 
@@ -686,7 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${totalDisplay}</td>
                 <td>
                     <div style="display: flex; gap: 8px;">
-                        <button class="action-btn edit" onclick="editShiftItem(${index})" style="padding: 4px 8px; font-size: 0.8rem; background: var(--primary-blue); color: white; border-radius: 6px; border: none; cursor: pointer;">✎</button>
+                        <button class="action-btn edit" onclick="editShiftItem(${index})" style="padding: 4px 8px; font-size: 0.8rem; background: var(--primary-blue); color: white; border-radius: 6px; border: none; cursor: pointer;">âœŽ</button>
                         <button class="action-btn delete" onclick="removeShiftItem(${index})" style="padding: 4px 8px; font-size: 0.8rem; background: #dc2626; color: white; border-radius: 6px; border: none; cursor: pointer;">&times;</button>
                     </div>
                 </td>
@@ -909,23 +909,23 @@ document.addEventListener('DOMContentLoaded', () => {
         let roundPoints = 0;
 
         if (currentFuel > targetFuel) {
-            gameMessage.textContent = '❌ EXCEDEU O LIMITE! Perdeu 10 pontos.';
+            gameMessage.textContent = 'âŒ EXCEDEU O LIMITE! Perdeu 10 pontos.';
             gameMessage.style.color = '#dc2626';
             roundPoints = -10;
         } else if (diff <= 0.05) {
-            gameMessage.textContent = '🎯 PERFEITO! +100 Pontos';
+            gameMessage.textContent = 'ðŸŽ¯ PERFEITO! +100 Pontos';
             gameMessage.style.color = '#059669';
             roundPoints = 100;
         } else if (diff <= 0.50) {
-            gameMessage.textContent = '⚡ QUASE LÁ! +50 Pontos';
+            gameMessage.textContent = 'âš¡ QUASE LÃ! +50 Pontos';
             gameMessage.style.color = '#0284c7';
             roundPoints = 50;
         } else if (diff <= 2.00) {
-            gameMessage.textContent = '👍 BOM TRABALHO! +20 Pontos';
+            gameMessage.textContent = 'ðŸ‘ BOM TRABALHO! +20 Pontos';
             gameMessage.style.color = '#0f172a';
             roundPoints = 20;
         } else {
-            gameMessage.textContent = '🐢 MUITO LONGE! +5 Pontos';
+            gameMessage.textContent = 'ðŸ¢ MUITO LONGE! +5 Pontos';
             gameMessage.style.color = '#64748b';
             roundPoints = 5;
         }
@@ -991,7 +991,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Minigame 2 Logic: Conveniência Catch ---
+    // --- Minigame 2 Logic: ConveniÃªncia Catch ---
     const catchArea = document.getElementById('catch-area');
     const basket = document.getElementById('basket');
     const moveLeftBtn = document.getElementById('move-left');
@@ -1000,7 +1000,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let basketPos = 50; // percentage
     let catchInterval = null;
     let itemSpawnInterval = null;
-    const items = ['🧴', '🥤', '🍟', '🍞', '🍫', '🍻'];
+    const items = ['ðŸ§´', 'ðŸ¥¤', 'ðŸŸ', 'ðŸž', 'ðŸ«', 'ðŸ»'];
     
     function initCatchGame() {
         basketPos = 50;
@@ -1072,4 +1072,82 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     renderScoreHistory();
+});
+
+// C-Frete Logic
+window.selectFreteView = function(viewName) {
+    const views = document.querySelectorAll('.cfrete-view');
+    views.forEach(v => v.classList.add('hidden'));
+    const target = document.getElementById('cfrete-view-' + viewName);
+    if (target) {
+        target.classList.remove('hidden');
+    }
+};
+
+window.selectFreteType = function(type) {
+    if (type === 'tip') {
+        window.selectFreteView('tip');
+    }
+};
+
+window.selectFreteOption = function(option) {
+    if (option === 'quitacao') {
+        window.selectFreteView('quitacao');
+    } else if (option === 'saldo') {
+        window.selectFreteView('saldo');
+    }
+};
+
+window.selectDiesel = function(btn, price) {
+    const btns = document.querySelectorAll('.btn-diesel');
+    btns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    const dieselInput = document.getElementById('cfrete-diesel');
+    if (dieselInput) {
+        dieselInput.value = price;
+        window.calculateCfrete();
+    }
+};
+
+window.calculateCfrete = function() {
+    const totalInput = document.getElementById('cfrete-total');
+    const dieselInput = document.getElementById('cfrete-diesel');
+    const resultsArea = document.getElementById('cfrete-results');
+    
+    if (!totalInput || !dieselInput || !resultsArea) return;
+    
+    const total = parseFloat(totalInput.value);
+    const diesel = parseFloat(dieselInput.value);
+    
+    if (isNaN(total) || total <= 0) {
+        resultsArea.classList.add('hidden');
+        return;
+    }
+    
+    resultsArea.classList.remove('hidden');
+    
+    const val45 = total * 0.45;
+    const litros = val45 / diesel;
+    const saque = total - val45;
+    
+    const formatMoney = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+    
+    const resTotal = document.getElementById('res-total');
+    const res45 = document.getElementById('res-45');
+    const resLitros = document.getElementById('res-litros');
+    const resSaque = document.getElementById('res-saque');
+    
+    if (resTotal) resTotal.textContent = formatMoney(total);
+    if (res45) res45.textContent = formatMoney(val45);
+    if (resLitros) resLitros.textContent = litros.toFixed(2) + ' L';
+    if (resSaque) resSaque.textContent = formatMoney(saque);
+};
+
+// Initialize listeners for C-Frete
+document.addEventListener('DOMContentLoaded', () => {
+    const totalInput = document.getElementById('cfrete-total');
+    if (totalInput) {
+        totalInput.addEventListener('input', window.calculateCfrete);
+    }
 });

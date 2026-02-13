@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body>
 
@@ -35,7 +36,7 @@
     <!-- Welcome Overlay -->
     <div id="welcome-overlay" class="welcome-overlay hidden">
         <div class="welcome-card">
-            <div class="welcome-icon">👋</div>
+            <div class="welcome-icon">PostoFacil</div>
             <h2 id="welcome-message-title">Bem-vindo!</h2>
             <p class="welcome-subtitle">Bom Trabalho e Boas Vendas!</p>
             <div class="loader-bar">
@@ -49,7 +50,7 @@
         <!-- Sidebar History -->
         <aside id="main-sidebar" class="sidebar">
             <div class="sidebar-header">
-                <h3>📜 Histórico Reais</h3>
+                <h3>Histórico</h3>
                 <button id="print-history-btn" class="btn-history-print">
                     🖨️ Imprimir Histórico
                 </button>
@@ -82,10 +83,8 @@
                     <button class="tab-btn active" data-tab="home">Início</button>
                     <button class="tab-btn" data-tab="troco">Troco</button>
                     <button class="tab-btn" data-tab="virada">Virada Caixa</button>
-                    <button class="tab-btn disabled-service" data-tab="contagem">Contagem</button>
-                    <button class="tab-btn disabled-service" data-tab="conveniencia">Conveniência</button>
-                    <button class="tab-btn disabled-service" data-tab="pitstop">Pitstop</button>
-                    <button class="tab-btn disabled-service" data-tab="oleo">Óleo</button>
+
+                    <button class="tab-btn" data-tab="cfrete">C-Frete</button>
                     <button class="tab-btn" data-tab="minigame">Minigame</button>
                 </div>
 
@@ -135,11 +134,11 @@
                     <div class="shift-change-container">
                         <div class="shift-header">
                             <div class="shift-title-group">
-                                <h3>📋 Virada de Caixa</h3>
-                                <p>Anote aqui os produtos vendidos no turno</p>
+                                <h3>Virada de Caixa</h3>
+                                <p>Produtos vendidos no turno</p>
                             </div>
                             <button id="print-shift-btn" class="btn-primary small-btn" style="background: var(--primary-yellow); color: var(--primary-blue);">
-                                🖨️ Imprimir Virada
+                                Imprimir Virada
                             </button>
                         </div>
                         
@@ -183,47 +182,100 @@
                     </div>
                 </div>
 
-                <!-- Tabs: Services in Development -->
-                <div id="tab-contagem" class="tab-content hidden">
-                    <div class="error-404-container">
-                        <div class="error-content">
-                            <span class="error-icon">⚠️</span>
-                            <h2>ERROR</h2>
-                            <p style="font-size: 1.5rem; font-weight: 800; color: #dc2626;">SERVIÇO INDISPONIVEL</p>
-                            <button class="btn-primary" onclick="document.querySelector('[data-tab=\'home\']').click()">Voltar ao inicio</button>
-                        </div>
-                    </div>
-                </div>
 
-                <div id="tab-conveniencia" class="tab-content hidden">
-                    <div class="error-404-container">
-                        <div class="error-content">
-                            <span class="error-icon">⚠️</span>
-                            <h2>ERROR</h2>
-                            <p style="font-size: 1.5rem; font-weight: 800; color: #dc2626;">SERVIÇO INDISPONIVEL</p>
-                            <button class="btn-primary" onclick="document.querySelector('[data-tab=\'home\']').click()">Voltar ao inicio</button>
+                <!-- Tab: C-Frete -->
+                <div id="tab-cfrete" class="tab-content hidden">
+                    <div class="cfrete-container" style="padding: 20px;">
+                        <!-- View 1: Initial Selection -->
+                        <div id="cfrete-view-initial" class="cfrete-view">
+                            <h2 style="margin-bottom: 30px; color: var(--primary-blue); text-align: center;">ESCOLHA A CARTA FRETE</h2>
+                            <div class="selection-grid">
+                                <div class="selection-card" onclick="selectFreteType('tip')">
+                                    <h2 style="font-size: 2rem; margin-bottom: 10px;">TIP</h2>
+                                    <p>Carta Frete</p>
+                                </div>
+                                <!-- Placeholder for future options -->
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <div id="tab-pitstop" class="tab-content hidden">
-                    <div class="error-404-container">
-                        <div class="error-content">
-                            <span class="error-icon">⚠️</span>
-                            <h2>ERROR</h2>
-                            <p style="font-size: 1.5rem; font-weight: 800; color: #dc2626;">SERVIÇO INDISPONIVEL</p>
-                            <button class="btn-primary" onclick="document.querySelector('[data-tab=\'home\']').click()">Voltar ao inicio</button>
+                        <!-- View 2: TIP Options -->
+                        <div id="cfrete-view-tip" class="cfrete-view hidden">
+                            <div class="view-header" style="display: flex; align-items: center; margin-bottom: 20px;">
+                                <button class="btn-secondary" onclick="selectFreteView('initial')" style="margin-right: 20px; color: var(--primary-blue); border-color: var(--primary-blue);">Voltar</button>
+                                <h3 style="color: var(--primary-blue);">TIP - Selecione a Operação</h3>
+                            </div>
+                            <div class="selection-grid">
+                                <div class="selection-card" onclick="selectFreteOption('quitacao')">
+                                    <h4>Quitação</h4>
+                                </div>
+                                <div class="selection-card" onclick="selectFreteOption('saldo')">
+                                    <h4>Saldo</h4>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <div id="tab-oleo" class="tab-content hidden">
-                    <div class="error-404-container">
-                        <div class="error-content">
-                            <span class="error-icon">⚠️</span>
-                            <h2>ERROR</h2>
-                            <p style="font-size: 1.5rem; font-weight: 800; color: #dc2626;">SERVIÇO INDISPONIVEL</p>
-                            <button class="btn-primary" onclick="document.querySelector('[data-tab=\'home\']').click()">Voltar ao inicio</button>
+                        <!-- View 3: Quitação (WIP) -->
+                        <div id="cfrete-view-quitacao" class="cfrete-view hidden">
+                             <div class="view-header" style="display: flex; align-items: center; margin-bottom: 20px;">
+                                <button class="btn-secondary" onclick="selectFreteView('tip')" style="margin-right: 20px; color: var(--primary-blue); border-color: var(--primary-blue);">Voltar</button>
+                            </div>
+                            <div class="error-404-container">
+                                <div class="error-content">
+                                    <span class="error-icon">!</span>
+                                    <h2>EM DESENVOLVIMENTO</h2>
+                                    <p style="font-size: 1.2rem; font-weight: 600; color: var(--text-muted);">Estamos trabalhando nisso. Favor voltar mais tarde.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- View 4: Saldo (Calculator) -->
+                        <div id="cfrete-view-saldo" class="cfrete-view hidden">
+                            <div class="view-header" style="display: flex; align-items: center; margin-bottom: 20px;">
+                                <button class="btn-secondary" onclick="selectFreteView('tip')" style="margin-right: 20px; color: var(--primary-blue); border-color: var(--primary-blue);">Voltar</button>
+                                <h3 style="color: var(--primary-blue);">Calculadora de Saldo</h3>
+                            </div>
+                            
+                            <div class="shift-form-card" style="max-width: 600px; margin: 0 auto;">
+                                <div class="inputs-area" style="grid-template-columns: 1fr 1fr; margin-bottom: 20px;">
+                                    <div class="input-card">
+                                        <label>Valor Total (R$)</label>
+                                        <input type="number" id="cfrete-total" placeholder="0,00" step="0.01">
+                                    </div>
+                                    <div class="input-card">
+                                        <label>Tipo Diesel</label>
+                                        <div class="diesel-selector">
+                                            <button class="btn-diesel active" data-price="5.70" onclick="selectDiesel(this, 5.70)">
+                                                <span class="d-type">S10</span>
+                                                <span class="d-price">R$ 5,70</span>
+                                            </button>
+                                            <button class="btn-diesel" data-price="5.64" onclick="selectDiesel(this, 5.64)">
+                                                <span class="d-type">S500</span>
+                                                <span class="d-price">R$ 5,64</span>
+                                            </button>
+                                        </div>
+                                        <input type="hidden" id="cfrete-diesel" value="5.70">
+                                    </div>
+                                </div>
+
+                                <div id="cfrete-results" class="results-display hidden" style="background: white; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.1rem;">
+                                        <span>Total:</span>
+                                        <strong id="res-total" style="color: var(--primary-blue);">R$ 0,00</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.1rem;">
+                                        <span>Valor 45%:</span>
+                                        <strong id="res-45" style="color: #ea580c;">R$ 0,00</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                                        <span>Qntd Litros:</span>
+                                        <strong id="res-litros" style="color: var(--primary-blue);">0,00 L</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 1.5rem; background: #ecfccb; padding: 15px; border-radius: 10px; color: #3f6212;">
+                                        <span>Valor Saque:</span>
+                                        <strong id="res-saque">R$ 0,00</strong>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -234,12 +286,10 @@
                             <h2 style="margin-bottom: 30px; color: var(--primary-blue);">ESCOLHA SEU DESAFIO</h2>
                             <div class="game-cards">
                                 <div class="game-card" onclick="switchGame('rush')">
-                                    <span style="font-size: 3rem;">⛽</span>
                                     <h4>Frentista Rush</h4>
                                     <p>Abasteça com precisão!</p>
                                 </div>
                                 <div class="game-card" onclick="switchGame('catch')">
-                                    <span style="font-size: 3rem;">🛒</span>
                                     <h4>Conveniência Catch</h4>
                                     <p>Pegue os produtos!</p>
                                 </div>
@@ -253,12 +303,12 @@
                                 <button class="btn-primary" onclick="backToSelector()" style="padding: 5px 15px; font-size: 0.8rem;">Voltar</button>
                             </div>
 
-                            <div class="target-info">🏆 Meta: R$ <span id="target-amount">50.00</span></div>
+                            <div class="target-info">Meta: R$ <span id="target-amount">50.00</span></div>
                             <p id="game-message" style="font-weight: 700; color: #666;">Encha o tanque sem ultrapassar!</p>
 
                             <div class="fuel-area">
-                                <div id="fuel-gauge" class="fuel-gauge" style="height: 0%;"></div>
-                                <div class="car-box">🚗</div>
+                                <div class="fuel-gauge" id="fuel-gauge" style="height: 0%;"></div>
+                                <div class="car-box">Carro</div>
                                 <div id="fuel-counter" style="position: absolute; top: 20px; font-weight: 950; font-size: 2.5rem; color: var(--primary-blue); text-shadow: 2px 2px white;">R$ 0.00</div>
                             </div>
 
@@ -280,7 +330,7 @@
                             <p style="font-weight: 700; color: #666; margin-bottom: 10px;">Mova a cesta para pegar os produtos!</p>
                             
                             <div id="catch-area" class="catch-area">
-                                <div id="basket" class="basket">🛒</div>
+                                <div id="basket" class="basket">Cesta</div>
                             </div>
                             
                             <div class="game-controls">
@@ -291,7 +341,7 @@
 
                         <!-- Shared History -->
                         <div class="high-scores" style="margin-top: 20px;">
-                            <h4>🏆 Melhores Pontuações</h4>
+                            <h4>Melhores Pontuações</h4>
                             <ul id="score-history"></ul>
                         </div>
                     </div>
