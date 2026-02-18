@@ -1087,14 +1087,24 @@ window.selectFreteView = function(viewName) {
 window.selectFreteType = function(type) {
     if (type === 'tip') {
         window.selectFreteView('tip');
+    } else if (type === 'tmov') {
+        window.selectFreteView('tmov');
     }
 };
 
 window.selectFreteOption = function(option) {
     if (option === 'quitacao') {
+        const backBtn = document.getElementById('back-to-frete-type');
+        if (backBtn) backBtn.setAttribute('onclick', "selectFreteView('tip')");
         window.selectFreteView('quitacao');
     } else if (option === 'saldo') {
         window.selectFreteView('saldo');
+    } else if (option === 'tmov-quitacao') {
+        const backBtn = document.getElementById('back-to-frete-type');
+        if (backBtn) backBtn.setAttribute('onclick', "selectFreteView('tmov')");
+        window.selectFreteView('quitacao');
+    } else if (option === 'tmov-saldo') {
+        window.selectFreteView('tmov-saldo');
     }
 };
 
@@ -1144,10 +1154,42 @@ window.calculateCfrete = function() {
     if (resSaque) resSaque.textContent = formatMoney(saque);
 };
 
+window.calculateTmovSaldo = function() {
+    const totalInput = document.getElementById('tmov-saldo-total');
+    const resultsArea = document.getElementById('tmov-saldo-results');
+    
+    if (!totalInput || !resultsArea) return;
+    
+    const total = parseFloat(totalInput.value);
+    
+    if (isNaN(total) || total <= 0) {
+        resultsArea.classList.add('hidden');
+        return;
+    }
+    
+    resultsArea.classList.remove('hidden');
+    
+    const combustivel = total * 0.35;
+    const saque = total - combustivel;
+    
+    const formatMoney = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+    
+    const resCombustivel = document.getElementById('res-tmov-combustivel');
+    const resSaque = document.getElementById('res-tmov-saque');
+    
+    if (resCombustivel) resCombustivel.textContent = formatMoney(combustivel);
+    if (resSaque) resSaque.textContent = formatMoney(saque);
+};
+
 // Initialize listeners for C-Frete
 document.addEventListener('DOMContentLoaded', () => {
     const totalInput = document.getElementById('cfrete-total');
     if (totalInput) {
         totalInput.addEventListener('input', window.calculateCfrete);
+    }
+    
+    const tmovTotalInput = document.getElementById('tmov-saldo-total');
+    if (tmovTotalInput) {
+        tmovTotalInput.addEventListener('input', window.calculateTmovSaldo);
     }
 });
