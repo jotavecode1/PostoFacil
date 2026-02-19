@@ -299,7 +299,7 @@
             }, 2000);
 
         } else {
-            loginError.textContent = 'UsuÃ¡rio ou senha incorretos.';
+            loginError.textContent = 'Usuário ou senha incorretos.';
             passwordInput.value = '';
         }
     });
@@ -495,7 +495,7 @@
         historyList.innerHTML = '';
         
         if (transactions.length === 0) {
-            historyList.innerHTML = '<div class="empty-history">Nenhuma transaÃ§Ã£o recente.</div>';
+            historyList.innerHTML = '<div class="empty-history">Nenhuma transação recente.</div>';
             return;
         }
 
@@ -576,7 +576,7 @@
             shiftTotalInput.value = '';
             shiftCodeInput.focus(); // Focus back to code
         } else {
-            alert('O nome do produto Ã© obrigatÃ³rio.');
+            alert('O nome do produto é obrigatório.');
         }
     });
 
@@ -909,23 +909,23 @@
         let roundPoints = 0;
 
         if (currentFuel > targetFuel) {
-            gameMessage.textContent = 'âŒ EXCEDEU O LIMITE! Perdeu 10 pontos.';
+            gameMessage.textContent = '❌ EXCEDEU O LIMITE! Perdeu 10 pontos.';
             gameMessage.style.color = '#dc2626';
             roundPoints = -10;
         } else if (diff <= 0.05) {
-            gameMessage.textContent = 'ðŸŽ¯ PERFEITO! +100 Pontos';
+            gameMessage.textContent = '🎯 PERFEITO! +100 Pontos';
             gameMessage.style.color = '#059669';
             roundPoints = 100;
         } else if (diff <= 0.50) {
-            gameMessage.textContent = 'âš¡ QUASE LÃ! +50 Pontos';
+            gameMessage.textContent = '⚡ QUASE LÁ! +50 Pontos';
             gameMessage.style.color = '#0284c7';
             roundPoints = 50;
         } else if (diff <= 2.00) {
-            gameMessage.textContent = 'ðŸ‘ BOM TRABALHO! +20 Pontos';
+            gameMessage.textContent = '👍 BOM TRABALHO! +20 Pontos';
             gameMessage.style.color = '#0f172a';
             roundPoints = 20;
         } else {
-            gameMessage.textContent = 'ðŸ¢ MUITO LONGE! +5 Pontos';
+            gameMessage.textContent = '🐢 MUITO LONGE! +5 Pontos';
             gameMessage.style.color = '#64748b';
             roundPoints = 5;
         }
@@ -991,7 +991,7 @@
         });
     }
 
-    // --- Minigame 2 Logic: ConveniÃªncia Catch ---
+    // --- Minigame 2 Logic: Conveniência Catch ---
     const catchArea = document.getElementById('catch-area');
     const basket = document.getElementById('basket');
     const moveLeftBtn = document.getElementById('move-left');
@@ -1000,7 +1000,7 @@
     let basketPos = 50; // percentage
     let catchInterval = null;
     let itemSpawnInterval = null;
-    const items = ['ðŸ§´', 'ðŸ¥¤', 'ðŸŸ', 'ðŸž', 'ðŸ«', 'ðŸ»'];
+    const items = ['🍪', '🥤', '🍟', '🥪', '🍫', '🍺'];
     
     function initCatchGame() {
         basketPos = 50;
@@ -1086,27 +1086,14 @@ window.selectFreteView = function(viewName) {
 
 window.selectFreteType = function(type) {
     if (type === 'tip') {
-        window.selectFreteView('tip');
+        window.selectFreteView('saldo');
     } else if (type === 'tmov') {
-        window.selectFreteView('tmov');
+        window.selectFreteView('tmov-saldo');
+    } else if (type === 'ff') {
+        window.selectFreteView('ff');
     }
 };
 
-window.selectFreteOption = function(option) {
-    if (option === 'quitacao') {
-        const backBtn = document.getElementById('back-to-frete-type');
-        if (backBtn) backBtn.setAttribute('onclick', "selectFreteView('tip')");
-        window.selectFreteView('quitacao');
-    } else if (option === 'saldo') {
-        window.selectFreteView('saldo');
-    } else if (option === 'tmov-quitacao') {
-        const backBtn = document.getElementById('back-to-frete-type');
-        if (backBtn) backBtn.setAttribute('onclick', "selectFreteView('tmov')");
-        window.selectFreteView('quitacao');
-    } else if (option === 'tmov-saldo') {
-        window.selectFreteView('tmov-saldo');
-    }
-};
 
 window.selectDiesel = function(btn, price) {
     const btns = document.querySelectorAll('.btn-diesel');
@@ -1193,3 +1180,4 @@ document.addEventListener('DOMContentLoaded', () => {
         tmovTotalInput.addEventListener('input', window.calculateTmovSaldo);
     }
 });
+
