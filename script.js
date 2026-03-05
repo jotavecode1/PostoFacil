@@ -82,6 +82,7 @@
     const btnCloseManage = document.getElementById('btn-close-manage');
     const btnDeleteComanda = document.getElementById('btn-delete-comanda');
     const btnFinalizeComanda = document.getElementById('btn-finalize-comanda');
+    const finalizedComandasList = document.getElementById('finalized-comandas-list');
 
     // State
     let currentUser = null;
@@ -334,6 +335,13 @@
         if (e.key === 'Enter') {
             e.preventDefault();
             passwordInput.focus();
+        }
+    });
+
+    passwordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            loginForm.dispatchEvent(new Event('submit'));
         }
     });
 
@@ -1203,30 +1211,65 @@ window.calculateTmovSaldo = function() {
     }
 
     function renderComandas() {
+        const pendentes = comandas.filter(c => c.status !== 'finalizada');
+        const finalizadas = comandas.filter(c => c.status === 'finalizada');
+
+        // Counts
+        document.getElementById('count-pendentes').textContent = pendentes.length;
+        document.getElementById('count-finalizadas').textContent = finalizadas.length;
+
+        // Render Pendentes
         activeComandasList.innerHTML = '';
-        if (comandas.length === 0) {
-            activeComandasList.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #94a3b8; background: #f8fafc; border-radius: 12px; border: 2px dashed #e2e8f0;">Nenhuma comanda aberta.</div>';
-            return;
+        if (pendentes.length === 0) {
+            activeComandasList.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8; background:#f8fafc; border-radius:12px; border:2px dashed #e2e8f0;">Nenhuma comanda pendente.</div>';
+        } else {
+            pendentes.forEach(c => {
+                const totalItems = c.items.reduce((s, i) => s + i.qty, 0);
+                const card = document.createElement('div');
+                card.style.cssText = 'background:white; border-radius:15px; padding:18px; box-shadow:0 4px 6px -1px rgb(0 0 0/0.08); border:2px solid #fef3c7; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s;';
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
+                        <h4 style="margin:0; color:#1e293b; font-size:1rem;">${c.client}</h4>
+                        <span style="font-size:0.7rem; background:#fef3c7; color:#92400e; padding:2px 7px; border-radius:20px; font-weight:700;">ABERTA</span>
+                    </div>
+                    <div style="font-size:0.9rem; color:#64748b;">${totalItems} item(s) &bull; #${c.id.toString().slice(-4)}</div>
+                `;
+                card.addEventListener('mouseenter', () => { card.style.transform = 'translateY(-4px)'; card.style.boxShadow = '0 8px 20px -4px rgb(0 0 0/0.15)'; });
+                card.addEventListener('mouseleave', () => { card.style.transform = 'translateY(0)'; card.style.boxShadow = '0 4px 6px -1px rgb(0 0 0/0.08)'; });
+                card.addEventListener('click', () => openManageComanda(c.id));
+                activeComandasList.appendChild(card);
+            });
         }
 
-        comandas.forEach(c => {
-            const total = c.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const card = document.createElement('div');
-            card.className = 'comanda-card';
-            card.style.cssText = 'background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border: 1px solid #e2e8f0; cursor: pointer; transition: transform 0.2s;';
-            card.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
-                    <h4 style="margin: 0; color: #1e293b;">${c.client}</h4>
-                    <span style="font-size: 0.75rem; color: #64748b;">#${c.id.toString().slice(-4)}</span>
-                </div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-blue); margin-bottom: 5px;">${formatCurrency(total)}</div>
-                <div style="font-size: 0.85rem; color: #64748b;">${c.items.length} produto(s)</div>
-            `;
-            card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-5px)');
-            card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0)');
-            card.addEventListener('click', () => openManageComanda(c.id));
-            activeComandasList.appendChild(card);
-        });
+        // Render Finalizadas
+        finalizedComandasList.innerHTML = '';
+        if (finalizadas.length === 0) {
+            finalizedComandasList.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:#94a3b8; font-size:0.9rem;">Nenhuma comanda finalizada.</div>';
+        } else {
+            finalizadas.forEach(c => {
+                const totalItems = c.items.reduce((s, i) => s + i.qty, 0);
+                const dt = c.finalizedAt ? new Date(c.finalizedAt) : null;
+                const dateStr = dt ? dt.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+                const card = document.createElement('div');
+                card.style.cssText = 'background:white; border-radius:15px; padding:18px; box-shadow:0 2px 4px -1px rgb(0 0 0/0.05); border:2px solid #d1fae5; cursor:pointer; transition: box-shadow 0.2s;';
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:10px;">
+                        <h4 style="margin:0; color:#1e293b; font-size:1rem;">${c.client}</h4>
+                        <span style="font-size:0.7rem; background:#d1fae5; color:#065f46; padding:2px 7px; border-radius:20px; font-weight:700;">FINALIZADA</span>
+                    </div>
+                    <div style="font-size:0.85rem; color:#64748b;">${totalItems} item(s) &bull; ${dateStr}</div>
+                    <div style="font-size:0.78rem; color:#10b981; margin-top:6px;">Clique para ver itens</div>
+                    <button onclick="deleteFinalizedComanda(${c.id}); event.stopPropagation()" style="margin-top:10px; background:none; border:none; color:#ef4444; font-size:0.78rem; cursor:pointer; padding:0;">Excluir registro</button>
+                `;
+                card.addEventListener('mouseenter', () => card.style.boxShadow = '0 6px 16px -4px rgb(0 0 0/0.12)');
+                card.addEventListener('mouseleave', () => card.style.boxShadow = '0 2px 4px -1px rgb(0 0 0/0.05)');
+                card.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') return;
+                    openFinalizedComanda(c.id);
+                });
+                finalizedComandasList.appendChild(card);
+            });
+        }
     }
 
     btnNewComanda.addEventListener('click', () => {
@@ -1256,47 +1299,78 @@ window.calculateTmovSaldo = function() {
         }
     });
 
-    function openManageComanda(id) {
+    // Enter in nova comanda input confirms
+    comandaClientNameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            confirmNewComandaBtn.click();
+        }
+    });
+
+    // Enter in admin password confirms delete
+    adminPasswordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            confirmDeleteBtn.click();
+        }
+    });
+
+    function openManageComanda(id, readOnly = false) {
         currentComandaId = id;
         const c = comandas.find(com => com.id === id);
         if (!c) return;
 
         manageComandaTitle.textContent = `Comanda: ${c.client}`;
-        renderComandaItems();
+        renderComandaItems(readOnly);
         comandaManageModal.classList.remove('hidden');
-        
-        // Reset product form
-        comandaProdNameInput.value = '';
-        comandaProdQtyInput.value = '1';
-        comandaProdPriceInput.value = '';
-        comandaProdNameInput.focus();
+
+        // Toggle readonly UI
+        const addForm = comandaManageModal.querySelector('.add-product-form');
+        const btnFinalize = document.getElementById('btn-finalize-comanda');
+        const btnDel = document.getElementById('btn-delete-comanda');
+        if (readOnly) {
+            if (addForm) addForm.style.display = 'none';
+            btnFinalize.style.display = 'none';
+            btnDel.style.display = 'none';
+            manageComandaTotal.textContent = `${c.items.reduce((s,i)=>s+i.qty,0)} item(s) — FINALIZADA`;
+        } else {
+            if (addForm) addForm.style.display = '';
+            btnFinalize.style.display = '';
+            btnDel.style.display = '';
+            // Reset product form
+            comandaProdNameInput.value = '';
+            comandaProdQtyInput.value = '1';
+            comandaProdNameInput.focus();
+        }
     }
 
-    function renderComandaItems() {
+    function openFinalizedComanda(id) {
+        openManageComanda(id, true);
+    }
+
+    function renderComandaItems(readOnly = false) {
         const c = comandas.find(com => com.id === currentComandaId);
         if (!c) return;
 
         comandaItemsList.innerHTML = '';
-        let total = 0;
 
         if (c.items.length === 0) {
             comandaItemsList.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 20px;">Nenhum item adicionado.</p>';
         } else {
             c.items.forEach((item, index) => {
-                const subtotal = item.price * item.qty;
-                total += subtotal;
                 const div = document.createElement('div');
-                div.style.cssText = 'display: grid; grid-template-columns: 1fr 50px 80px 40px; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; align-items: center;';
+                div.style.cssText = `display: grid; grid-template-columns: 1fr 50px ${readOnly ? '' : '40px'}; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; align-items: center;`;
                 div.innerHTML = `
                     <span style="font-weight: 500;">${item.name}</span>
-                    <span style="color: #64748b;">${item.qty}x</span>
-                    <span style="font-weight: 600;">${formatCurrency(subtotal)}</span>
-                    <button onclick="removeProductFromComanda(${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.2rem;">&times;</button>
+                    <span style="color: #64748b; text-align: center;">${item.qty}x</span>
+                    ${readOnly ? '' : `<button onclick="removeProductFromComanda(${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.2rem;">&times;</button>`}
                 `;
                 comandaItemsList.appendChild(div);
             });
         }
-        manageComandaTotal.textContent = formatCurrency(total);
+        if (!readOnly) {
+            manageComandaTotal.textContent = `${c.items.reduce((s,i)=>s+i.qty,0)} item(s)`;
+        }
     }
 
     window.removeProductFromComanda = function(index) {
@@ -1309,27 +1383,54 @@ window.calculateTmovSaldo = function() {
         }
     };
 
-    btnAddToComanda.addEventListener('click', () => {
+    function addItemToComanda() {
         const name = comandaProdNameInput.value.trim();
         const qty = parseInt(comandaProdQtyInput.value);
-        const price = parseFloat(comandaProdPriceInput.value);
 
-        if (name && !isNaN(qty) && qty > 0 && !isNaN(price)) {
-            const c = comandas.find(com => com.id === currentComandaId);
-            if (c) {
-                c.items.push({ name, qty, price });
-                saveComandas();
-                renderComandaItems();
-                renderComandas();
-                
-                // Reset form
-                comandaProdNameInput.value = '';
-                comandaProdQtyInput.value = '1';
-                comandaProdPriceInput.value = '';
-                comandaProdNameInput.focus();
+        if (!name || isNaN(qty) || qty < 1) {
+            return;
+        }
+
+        const c = comandas.find(com => com.id === currentComandaId);
+        if (c) {
+            // Check if item already exists, increment qty
+            const existing = c.items.find(i => i.name.toUpperCase() === name.toUpperCase());
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                c.items.push({ name: name.toUpperCase(), qty });
             }
-        } else {
-            alert('Preencha os dados do produto corretamente.');
+            saveComandas();
+            renderComandaItems();
+            renderComandas();
+            
+            // Show feedback
+            const feedback = document.getElementById('comanda-add-feedback');
+            feedback.textContent = `✓ ${qty}x ${name.toUpperCase()} adicionado!`;
+            feedback.style.display = 'block';
+            setTimeout(() => { feedback.style.display = 'none'; }, 2500);
+
+            // Reset form
+            comandaProdNameInput.value = '';
+            comandaProdQtyInput.value = '1';
+            comandaProdSuggestions.classList.add('hidden');
+            comandaProdNameInput.focus();
+        }
+    }
+
+    btnAddToComanda.addEventListener('click', addItemToComanda);
+
+    // Enter key support
+    comandaProdNameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (comandaProdNameInput.value.trim()) comandaProdQtyInput.focus();
+        }
+    });
+    comandaProdQtyInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addItemToComanda();
         }
     });
 
@@ -1384,43 +1485,36 @@ window.calculateTmovSaldo = function() {
             return;
         }
 
-        const total = c.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        
-        // Finalize transaction
-        const now = new Date();
-        const transaction = {
-            id: Date.now(),
-            charge: total,
-            paid: total,
-            change: 0,
-            timestamp: now,
-            items: c.items.map(i => `${i.qty}x ${i.name}`),
-            client: c.client
-        };
-        
-        transactions.unshift(transaction);
-        renderHistory();
-        
-        // Remove comanda
-        comandas = comandas.filter(com => com.id !== currentComandaId);
+        if (!confirm(`Finalizar a comanda de ${c.client}?\nEla será movida para a seção de Finalizadas.`)) {
+            return;
+        }
+
+        // Mark as finalized (keep in list)
+        c.status = 'finalizada';
+        c.finalizedAt = new Date().toISOString();
         saveComandas();
         renderComandas();
-        
+
         comandaManageModal.classList.add('hidden');
         currentComandaId = null;
 
-        // Auto move to Troco tab for possible change or just visualization
-        document.querySelector('.tab-btn[data-tab="troco"]').click();
-        
         // Send to sheets
         sendToGoogleSheets(URL_PLANILHA_TROCO, {
             type: 'COMANDA',
-            client: transaction.client,
-            total: total
+            client: c.client,
+            items: c.items.length
         });
 
-        alert(`Comanda de ${transaction.client} finalizada com sucesso!\nTotal: ${formatCurrency(total)}`);
+        alert(`Comanda de ${c.client} finalizada!`);
     });
+
+    window.deleteFinalizedComanda = function(id) {
+        if (confirm('Excluir este registro de comanda finalizada?')) {
+            comandas = comandas.filter(c => c.id !== id);
+            saveComandas();
+            renderComandas();
+        }
+    };
 
     // Initialize Comandas
     renderComandas();
@@ -1442,5 +1536,31 @@ window.calculateTmovSaldo = function() {
     if (tmovTotalInput) {
         tmovTotalInput.addEventListener('input', window.calculateTmovSaldo);
     }
+
+    // --- Global Enter Key Navigation ---
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+        const tag = document.activeElement.tagName;
+        const type = document.activeElement.type;
+        // Only act on text/number/password inputs (not buttons, textareas, selects)
+        if (tag !== 'INPUT') return;
+        if (type === 'submit' || type === 'button' || type === 'checkbox' || type === 'radio') return;
+        // Don't intercept if event already handled (e.g. comanda Enter listeners)
+        if (e.defaultPrevented) return;
+
+        e.preventDefault();
+        const allInputs = Array.from(document.querySelectorAll(
+            'input:not([type=hidden]):not([type=submit]):not([type=button]):not([disabled])'
+        )).filter(el => {
+            const style = window.getComputedStyle(el);
+            return style.display !== 'none' && style.visibility !== 'hidden' && el.offsetParent !== null;
+        });
+
+        const idx = allInputs.indexOf(document.activeElement);
+        if (idx >= 0 && idx < allInputs.length - 1) {
+            allInputs[idx + 1].focus();
+        }
+    });
+
 });
 
