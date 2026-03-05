@@ -85,6 +85,7 @@
                     <button class="tab-btn" data-tab="virada">Virada Caixa</button>
 
                     <button class="tab-btn" data-tab="cfrete">C-Frete</button>
+                    <button class="tab-btn" data-tab="comanda">Comanda</button>
                     <button class="tab-btn" data-tab="minigame">Minigame</button>
                 </div>
 
@@ -214,17 +215,25 @@
                             </div>
                             
                             <div class="shift-form-card" style="max-width: 600px; margin: 0 auto;">
+                                <div style="background: #ecfccb; color: #3f6212; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; font-weight: 600; text-align: center; border: 1px solid #d9f99d;">
+                                    Alteração do preço do diesel já corrigida.
+                                </div>
                                 <div class="inputs-area" style="grid-template-columns: 1fr; margin-bottom: 20px;">
                                     <div class="input-card">
                                         <label>Saldo Total (R$)</label>
                                         <input type="number" id="tmov-saldo-total" placeholder="0,00" step="0.01">
                                     </div>
+                                    <input type="hidden" id="tmov-diesel" value="5.82">
                                 </div>
 
                                 <div id="tmov-saldo-results" class="results-display hidden" style="background: white; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0;">
                                     <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.2rem; background: #fff7ed; padding: 15px; border-radius: 10px; color: #9a3412; border: 1px solid #ffedd5;">
                                         <span>COMBUSTIVEL:</span>
                                         <strong id="res-tmov-combustivel">R$ 0,00</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                                        <span>Qntd Litros:</span>
+                                        <strong id="res-tmov-litros" style="color: var(--primary-blue);">0,00 L</strong>
                                     </div>
                                     <div style="display: flex; justify-content: space-between; font-size: 1.5rem; background: #ecfccb; padding: 15px; border-radius: 10px; color: #3f6212;">
                                         <span>SAQUE:</span>
@@ -249,6 +258,9 @@
                             </div>
                             
                             <div class="shift-form-card" style="max-width: 600px; margin: 0 auto;">
+                                <div style="background: #ecfccb; color: #3f6212; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; font-weight: 600; text-align: center; border: 1px solid #d9f99d;">
+                                    Alteração do preço do diesel já corrigida.
+                                </div>
                                 <div class="inputs-area" style="grid-template-columns: 1fr 1fr; margin-bottom: 20px;">
                                     <div class="input-card">
                                         <label>Valor Total (R$)</label>
@@ -257,16 +269,16 @@
                                     <div class="input-card">
                                         <label>Tipo Diesel</label>
                                         <div class="diesel-selector">
-                                            <button class="btn-diesel active" data-price="5.70" onclick="selectDiesel(this, 5.70)">
+                                            <button class="btn-diesel active" data-price="5.82" onclick="selectDiesel(this, 5.82)">
                                                 <span class="d-type">S10</span>
-                                                <span class="d-price">R$ 5,70</span>
+                                                <span class="d-price">R$ 5,82</span>
                                             </button>
-                                            <button class="btn-diesel" data-price="5.64" onclick="selectDiesel(this, 5.64)">
+                                            <button class="btn-diesel" data-price="5.76" onclick="selectDiesel(this, 5.76)">
                                                 <span class="d-type">S500</span>
-                                                <span class="d-price">R$ 5,64</span>
+                                                <span class="d-price">R$ 5,76</span>
                                             </button>
                                         </div>
-                                        <input type="hidden" id="cfrete-diesel" value="5.70">
+                                        <input type="hidden" id="cfrete-diesel" value="5.82">
                                     </div>
                                 </div>
 
@@ -334,6 +346,21 @@
                                     </div>
                                 </div>
                             </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Comanda -->
+                <div id="tab-comanda" class="tab-content hidden">
+                    <div class="comanda-container" style="padding: 20px;">
+                        <div class="comanda-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                            <h2 style="color: var(--primary-blue);">Gestão de Comandas</h2>
+                            <button id="btn-new-comanda" class="btn-primary" style="padding: 10px 20px;">+ Nova Comanda</button>
+                        </div>
+
+                        <div id="active-comandas-list" class="comanda-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                            <!-- Active comandas will be injected here -->
                         </div>
                     </div>
                 </div>
@@ -440,6 +467,63 @@
 
             <div class="modal-actions">
                 <button id="close-edit" class="btn-primary">Salvar e Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comanda Modals -->
+    <div id="comanda-create-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Nova Comanda</h3>
+            <p>Identifique o cliente ou mesa</p>
+            <input type="text" id="comanda-client-name" placeholder="Nome do Cliente" style="width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px;">
+            <div class="modal-actions">
+                <button id="cancel-new-comanda" class="btn-modal-cancel">Cancelar</button>
+                <button id="confirm-new-comanda" class="btn-modal-confirm">Criar Comanda</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="comanda-manage-modal" class="modal hidden">
+        <div class="modal-content large-modal">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 id="manage-comanda-title">Comanda: Cliente</h3>
+                <span id="manage-comanda-total" style="font-size: 1.5rem; font-weight: 700; color: var(--primary-blue);">R$ 0,00</span>
+            </div>
+            
+            <div class="items-section">
+                <h4>Produtos na Comanda</h4>
+                <div id="comanda-items-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 20px; border: 1px solid #eee; border-radius: 10px; padding: 10px;">
+                    <!-- Items will be added here -->
+                </div>
+
+                <div class="add-product-form" style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <h5 style="margin-bottom: 10px; color: #64748b;">Adicionar Produto</h5>
+                    <div style="display: grid; grid-template-columns: 1fr 80px 100px 50px; gap: 10px; align-items: end;">
+                        <div style="position: relative;">
+                            <label style="font-size: 0.75rem; color: #64748b; display: block; margin-bottom: 4px;">Produto</label>
+                            <input type="text" id="comanda-prod-name" placeholder="Buscar produto..." autocomplete="off" style="width: 100%; border: 1px solid #ddd; border-radius: 6px; padding: 8px;">
+                            <div id="comanda-prod-suggestions" class="suggestions-list hidden"></div>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: #64748b; display: block; margin-bottom: 4px;">Qtd</label>
+                            <input type="number" id="comanda-prod-qty" value="1" min="1" style="width: 100%; border: 1px solid #ddd; border-radius: 6px; padding: 8px;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: #64748b; display: block; margin-bottom: 4px;">Preço Un (R$)</label>
+                            <input type="number" id="comanda-prod-price" placeholder="0,00" step="0.01" style="width: 100%; border: 1px solid #ddd; border-radius: 6px; padding: 8px;">
+                        </div>
+                        <button id="btn-add-to-comanda" class="btn-primary" style="height: 38px; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions" style="margin-top: 25px; display: flex; justify-content: space-between; gap: 10px;">
+                <button id="btn-delete-comanda" class="btn-modal-cancel" style="background: #fee2e2; color: #dc2626; border-color: #fecaca;">Excluir Comanda</button>
+                <div style="display: flex; gap: 10px;">
+                    <button id="btn-close-manage" class="btn-secondary" style="border: 1px solid #cbd5e1; color: #64748b;">Fechar</button>
+                    <button id="btn-finalize-comanda" class="btn-modal-confirm" style="background: #10b981;">Finalizar e Receber</button>
+                </div>
             </div>
         </div>
     </div>

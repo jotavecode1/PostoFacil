@@ -62,6 +62,27 @@
     const addItemBtn = document.getElementById('add-item-btn');
     const closeEditBtn = document.getElementById('close-edit');
 
+    // Comanda Elements
+    const btnNewComanda = document.getElementById('btn-new-comanda');
+    const activeComandasList = document.getElementById('active-comandas-list');
+    const comandaCreateModal = document.getElementById('comanda-create-modal');
+    const comandaClientNameInput = document.getElementById('comanda-client-name');
+    const cancelNewComandaBtn = document.getElementById('cancel-new-comanda');
+    const confirmNewComandaBtn = document.getElementById('confirm-new-comanda');
+
+    const comandaManageModal = document.getElementById('comanda-manage-modal');
+    const manageComandaTitle = document.getElementById('manage-comanda-title');
+    const manageComandaTotal = document.getElementById('manage-comanda-total');
+    const comandaItemsList = document.getElementById('comanda-items-list');
+    const comandaProdNameInput = document.getElementById('comanda-prod-name');
+    const comandaProdQtyInput = document.getElementById('comanda-prod-qty');
+    const comandaProdPriceInput = document.getElementById('comanda-prod-price');
+    const btnAddToComanda = document.getElementById('btn-add-to-comanda');
+    const comandaProdSuggestions = document.getElementById('comanda-prod-suggestions');
+    const btnCloseManage = document.getElementById('btn-close-manage');
+    const btnDeleteComanda = document.getElementById('btn-delete-comanda');
+    const btnFinalizeComanda = document.getElementById('btn-finalize-comanda');
+
     // State
     let currentUser = null;
     let currentCharge = 0;
@@ -75,6 +96,10 @@
 
     // Shift Items Store
     let shiftItems = [];
+
+    // Comandas Store
+    let comandas = JSON.parse(localStorage.getItem('postoFacilComandas') || '[]');
+    let currentComandaId = null;
 
     // Valid Users
     const validUsers = ['joao', 'isaque', 'luan', 'gabriel', 'bruno', 'marina', 'luiz', 'murilo'];
@@ -1072,7 +1097,6 @@
     }
 
     renderScoreHistory();
-});
 
 // C-Frete Logic
 window.selectFreteView = function(viewName) {
@@ -1096,7 +1120,7 @@ window.selectFreteType = function(type) {
 
 
 window.selectDiesel = function(btn, price) {
-    const btns = document.querySelectorAll('.btn-diesel');
+    const btns = btn.closest('.diesel-selector').querySelectorAll('.btn-diesel');
     btns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     
@@ -1143,11 +1167,13 @@ window.calculateCfrete = function() {
 
 window.calculateTmovSaldo = function() {
     const totalInput = document.getElementById('tmov-saldo-total');
+    const dieselInput = document.getElementById('tmov-diesel');
     const resultsArea = document.getElementById('tmov-saldo-results');
     
-    if (!totalInput || !resultsArea) return;
+    if (!totalInput || !dieselInput || !resultsArea) return;
     
     const total = parseFloat(totalInput.value);
+    const diesel = parseFloat(dieselInput.value);
     
     if (isNaN(total) || total <= 0) {
         resultsArea.classList.add('hidden');
@@ -1157,22 +1183,259 @@ window.calculateTmovSaldo = function() {
     resultsArea.classList.remove('hidden');
     
     const combustivel = total * 0.35;
+    const litros = combustivel / diesel;
     const saque = total - combustivel;
     
     const formatMoney = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
     
     const resCombustivel = document.getElementById('res-tmov-combustivel');
+    const resLitros = document.getElementById('res-tmov-litros');
     const resSaque = document.getElementById('res-tmov-saque');
     
     if (resCombustivel) resCombustivel.textContent = formatMoney(combustivel);
+    if (resLitros) resLitros.textContent = litros.toFixed(2) + ' L';
     if (resSaque) resSaque.textContent = formatMoney(saque);
 };
 
-// Initialize listeners for C-Frete
-document.addEventListener('DOMContentLoaded', () => {
-    const totalInput = document.getElementById('cfrete-total');
-    if (totalInput) {
-        totalInput.addEventListener('input', window.calculateCfrete);
+    // --- Comanda Logic ---
+    function saveComandas() {
+        localStorage.setItem('postoFacilComandas', JSON.stringify(comandas));
+    }
+
+    function renderComandas() {
+        activeComandasList.innerHTML = '';
+        if (comandas.length === 0) {
+            activeComandasList.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #94a3b8; background: #f8fafc; border-radius: 12px; border: 2px dashed #e2e8f0;">Nenhuma comanda aberta.</div>';
+            return;
+        }
+
+        comandas.forEach(c => {
+            const total = c.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const card = document.createElement('div');
+            card.className = 'comanda-card';
+            card.style.cssText = 'background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border: 1px solid #e2e8f0; cursor: pointer; transition: transform 0.2s;';
+            card.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                    <h4 style="margin: 0; color: #1e293b;">${c.client}</h4>
+                    <span style="font-size: 0.75rem; color: #64748b;">#${c.id.toString().slice(-4)}</span>
+                </div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-blue); margin-bottom: 5px;">${formatCurrency(total)}</div>
+                <div style="font-size: 0.85rem; color: #64748b;">${c.items.length} produto(s)</div>
+            `;
+            card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-5px)');
+            card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0)');
+            card.addEventListener('click', () => openManageComanda(c.id));
+            activeComandasList.appendChild(card);
+        });
+    }
+
+    btnNewComanda.addEventListener('click', () => {
+        comandaCreateModal.classList.remove('hidden');
+        comandaClientNameInput.value = '';
+        comandaClientNameInput.focus();
+    });
+
+    cancelNewComandaBtn.addEventListener('click', () => {
+        comandaCreateModal.classList.add('hidden');
+    });
+
+    confirmNewComandaBtn.addEventListener('click', () => {
+        const client = comandaClientNameInput.value.trim();
+        if (client) {
+            const newComanda = {
+                id: Date.now(),
+                client: client,
+                items: [],
+                timestamp: new Date()
+            };
+            comandas.push(newComanda);
+            saveComandas();
+            renderComandas();
+            comandaCreateModal.classList.add('hidden');
+            openManageComanda(newComanda.id);
+        }
+    });
+
+    function openManageComanda(id) {
+        currentComandaId = id;
+        const c = comandas.find(com => com.id === id);
+        if (!c) return;
+
+        manageComandaTitle.textContent = `Comanda: ${c.client}`;
+        renderComandaItems();
+        comandaManageModal.classList.remove('hidden');
+        
+        // Reset product form
+        comandaProdNameInput.value = '';
+        comandaProdQtyInput.value = '1';
+        comandaProdPriceInput.value = '';
+        comandaProdNameInput.focus();
+    }
+
+    function renderComandaItems() {
+        const c = comandas.find(com => com.id === currentComandaId);
+        if (!c) return;
+
+        comandaItemsList.innerHTML = '';
+        let total = 0;
+
+        if (c.items.length === 0) {
+            comandaItemsList.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 20px;">Nenhum item adicionado.</p>';
+        } else {
+            c.items.forEach((item, index) => {
+                const subtotal = item.price * item.qty;
+                total += subtotal;
+                const div = document.createElement('div');
+                div.style.cssText = 'display: grid; grid-template-columns: 1fr 50px 80px 40px; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; align-items: center;';
+                div.innerHTML = `
+                    <span style="font-weight: 500;">${item.name}</span>
+                    <span style="color: #64748b;">${item.qty}x</span>
+                    <span style="font-weight: 600;">${formatCurrency(subtotal)}</span>
+                    <button onclick="removeProductFromComanda(${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.2rem;">&times;</button>
+                `;
+                comandaItemsList.appendChild(div);
+            });
+        }
+        manageComandaTotal.textContent = formatCurrency(total);
+    }
+
+    window.removeProductFromComanda = function(index) {
+        const c = comandas.find(com => com.id === currentComandaId);
+        if (c) {
+            c.items.splice(index, 1);
+            saveComandas();
+            renderComandaItems();
+            renderComandas();
+        }
+    };
+
+    btnAddToComanda.addEventListener('click', () => {
+        const name = comandaProdNameInput.value.trim();
+        const qty = parseInt(comandaProdQtyInput.value);
+        const price = parseFloat(comandaProdPriceInput.value);
+
+        if (name && !isNaN(qty) && qty > 0 && !isNaN(price)) {
+            const c = comandas.find(com => com.id === currentComandaId);
+            if (c) {
+                c.items.push({ name, qty, price });
+                saveComandas();
+                renderComandaItems();
+                renderComandas();
+                
+                // Reset form
+                comandaProdNameInput.value = '';
+                comandaProdQtyInput.value = '1';
+                comandaProdPriceInput.value = '';
+                comandaProdNameInput.focus();
+            }
+        } else {
+            alert('Preencha os dados do produto corretamente.');
+        }
+    });
+
+    comandaProdNameInput.addEventListener('input', () => {
+        const query = comandaProdNameInput.value.trim().toUpperCase();
+        comandaProdSuggestions.innerHTML = '';
+        
+        if (query.length < 2) {
+            comandaProdSuggestions.classList.add('hidden');
+            return;
+        }
+
+        const matches = productDatabase.filter(p => p.name.includes(query)).slice(0, 5);
+        
+        if (matches.length > 0) {
+            matches.forEach(product => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.innerHTML = `<span>${product.name}</span>`;
+                item.addEventListener('click', () => {
+                    comandaProdNameInput.value = product.name;
+                    comandaProdSuggestions.classList.add('hidden');
+                    comandaProdQtyInput.focus();
+                });
+                comandaProdSuggestions.appendChild(item);
+            });
+            comandaProdSuggestions.classList.remove('hidden');
+        } else {
+            comandaProdSuggestions.classList.add('hidden');
+        }
+    });
+
+    btnCloseManage.addEventListener('click', () => {
+        comandaManageModal.classList.add('hidden');
+        currentComandaId = null;
+    });
+
+    btnDeleteComanda.addEventListener('click', () => {
+        if (confirm('Tem certeza que deseja excluir esta comanda?')) {
+            comandas = comandas.filter(c => c.id !== currentComandaId);
+            saveComandas();
+            renderComandas();
+            comandaManageModal.classList.add('hidden');
+            currentComandaId = null;
+        }
+    });
+
+    btnFinalizeComanda.addEventListener('click', () => {
+        const c = comandas.find(com => com.id === currentComandaId);
+        if (!c || c.items.length === 0) {
+            alert('A comanda está vazia.');
+            return;
+        }
+
+        const total = c.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        
+        // Finalize transaction
+        const now = new Date();
+        const transaction = {
+            id: Date.now(),
+            charge: total,
+            paid: total,
+            change: 0,
+            timestamp: now,
+            items: c.items.map(i => `${i.qty}x ${i.name}`),
+            client: c.client
+        };
+        
+        transactions.unshift(transaction);
+        renderHistory();
+        
+        // Remove comanda
+        comandas = comandas.filter(com => com.id !== currentComandaId);
+        saveComandas();
+        renderComandas();
+        
+        comandaManageModal.classList.add('hidden');
+        currentComandaId = null;
+
+        // Auto move to Troco tab for possible change or just visualization
+        document.querySelector('.tab-btn[data-tab="troco"]').click();
+        
+        // Send to sheets
+        sendToGoogleSheets(URL_PLANILHA_TROCO, {
+            type: 'COMANDA',
+            client: transaction.client,
+            total: total
+        });
+
+        alert(`Comanda de ${transaction.client} finalizada com sucesso!\nTotal: ${formatCurrency(total)}`);
+    });
+
+    // Initialize Comandas
+    renderComandas();
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!comandaProdNameInput.contains(e.target) && !comandaProdSuggestions.contains(e.target)) {
+            comandaProdSuggestions.classList.add('hidden');
+        }
+    });
+
+    // Initialize listeners for C-Frete
+    const cfreteTotalInput = document.getElementById('cfrete-total');
+    if (cfreteTotalInput) {
+        cfreteTotalInput.addEventListener('input', window.calculateCfrete);
     }
     
     const tmovTotalInput = document.getElementById('tmov-saldo-total');
