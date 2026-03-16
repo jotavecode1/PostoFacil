@@ -18,6 +18,106 @@
         }
     }
 
+    // --- Global Functions (Scope Fix) ---
+    window.selectFreteView = function(viewName) {
+        const views = document.querySelectorAll('.cfrete-view');
+        views.forEach(v => v.classList.add('hidden'));
+        const target = document.getElementById('cfrete-view-' + viewName);
+        if (target) {
+            target.classList.remove('hidden');
+        }
+    };
+
+    window.selectFreteType = function(type) {
+        if (type === 'tip') {
+            window.selectFreteView('saldo');
+        } else if (type === 'tmov') {
+            window.selectFreteView('tmov-saldo');
+        } else if (type === 'ff') {
+            window.selectFreteView('ff');
+        }
+    };
+
+    window.updateDieselDisplays = function() {
+        const s10 = dieselPrices.s10;
+        const s500 = dieselPrices.s500;
+        const format = (v) => 'R$ ' + v.toFixed(2).replace('.', ',');
+        ['tip', 'tmov'].forEach(ctx => {
+            const s10Disp = document.getElementById(`display-diesel-s10-${ctx}`);
+            const s500Disp = document.getElementById(`display-diesel-s500-${ctx}`);
+            if (s10Disp) s10Disp.textContent = format(s10);
+            if (s500Disp) s500Disp.textContent = format(s500);
+            const s10Btn = document.getElementById(`btn-diesel-s10-${ctx}`);
+            const hiddenInput = document.getElementById(ctx === 'tip' ? 'cfrete-diesel' : 'tmov-diesel');
+            if (s10Btn && hiddenInput) {
+                hiddenInput.value = s10Btn.classList.contains('active') ? s10 : s500;
+            }
+        });
+        if (window.calculateCfrete) window.calculateCfrete();
+        if (window.calculateTmovSaldo) window.calculateTmovSaldo();
+    };
+
+    window.selectDieselS10 = function(context) {
+        dieselPrices.s10 = parseFloat(dieselPrices.s10) || 5.82;
+        const s10Btn = document.getElementById(`btn-diesel-s10-${context}`);
+        const s500Btn = document.getElementById(`btn-diesel-s500-${context}`);
+        if (s10Btn) s10Btn.classList.add('active');
+        if (s500Btn) s500Btn.classList.remove('active');
+        const dieselInput = document.getElementById(context === 'tip' ? 'cfrete-diesel' : 'tmov-diesel');
+        if (dieselInput) dieselInput.value = dieselPrices.s10;
+        if (context === 'tip') window.calculateCfrete(); else window.calculateTmovSaldo();
+    };
+
+    window.selectDieselS500 = function(context) {
+        dieselPrices.s500 = parseFloat(dieselPrices.s500) || 5.76;
+        const s10Btn = document.getElementById(`btn-diesel-s10-${context}`);
+        const s500Btn = document.getElementById(`btn-diesel-s500-${context}`);
+        if (s10Btn) s10Btn.classList.remove('active');
+        if (s500Btn) s500Btn.classList.add('active');
+        const dieselInput = document.getElementById(context === 'tip' ? 'cfrete-diesel' : 'tmov-diesel');
+        if (dieselInput) dieselInput.value = dieselPrices.s500;
+        if (context === 'tip') window.calculateCfrete(); else window.calculateTmovSaldo();
+    };
+
+    let currentEditingDiesel = null;
+
+    window.editDieselPrice = function(type, event) {
+        if (event) event.stopPropagation();
+        currentEditingDiesel = type;
+        const currentPrice = dieselPrices[type];
+        
+        document.getElementById('diesel-modal-title').textContent = `Diesel ${type.toUpperCase()}`;
+        document.getElementById('new-diesel-price').value = currentPrice.toFixed(2);
+        document.getElementById('diesel-modal').classList.remove('hidden');
+        document.getElementById('new-diesel-price').focus();
+    };
+
+    // Modal Action Listeners (Diesel)
+    document.getElementById('cancel-diesel-edit').addEventListener('click', () => {
+        document.getElementById('diesel-modal').classList.add('hidden');
+        currentEditingDiesel = null;
+    });
+
+    document.getElementById('confirm-diesel-edit').addEventListener('click', () => {
+        const input = document.getElementById('new-diesel-price');
+        const newPrice = parseFloat(input.value.replace(',', '.'));
+        if (!isNaN(newPrice) && newPrice > 0) {
+            dieselPrices[currentEditingDiesel] = newPrice;
+            window.updateDieselDisplays();
+            document.getElementById('diesel-modal').classList.add('hidden');
+            currentEditingDiesel = null;
+        } else {
+            alert('Preço inválido.');
+        }
+    });
+
+    document.getElementById('new-diesel-price').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('confirm-diesel-edit').click();
+        }
+    });
+
     // DOM Elements
     const loginScreen = document.getElementById('login-screen');
     const appContainer = document.getElementById('app-container');
@@ -76,7 +176,6 @@
     const comandaItemsList = document.getElementById('comanda-items-list');
     const comandaProdNameInput = document.getElementById('comanda-prod-name');
     const comandaProdQtyInput = document.getElementById('comanda-prod-qty');
-    const comandaProdPriceInput = document.getElementById('comanda-prod-price');
     const btnAddToComanda = document.getElementById('btn-add-to-comanda');
     const comandaProdSuggestions = document.getElementById('comanda-prod-suggestions');
     const btnCloseManage = document.getElementById('btn-close-manage');
@@ -86,6 +185,10 @@
 
     // State
     let currentUser = null;
+    let dieselPrices = {
+        s10: 5.82,
+        s500: 5.76
+    };
     let currentCharge = 0;
     let currentPaid = 0;
     let currentChange = 0;
@@ -719,8 +822,10 @@
                 <td>${totalDisplay}</td>
                 <td>
                     <div style="display: flex; gap: 8px;">
-                        <button class="action-btn edit" onclick="editShiftItem(${index})" style="padding: 4px 8px; font-size: 0.8rem; background: var(--primary-blue); color: white; border-radius: 6px; border: none; cursor: pointer;">âœŽ</button>
-                        <button class="action-btn delete" onclick="removeShiftItem(${index})" style="padding: 4px 8px; font-size: 0.8rem; background: #dc2626; color: white; border-radius: 6px; border: none; cursor: pointer;">&times;</button>
+                        <button class="action-btn edit" onclick="editShiftItem(${index})" style="padding: 4px 8px; font-size: 0.8rem; background: var(--primary-blue); color: white; border-radius: 6px; border: none; cursor: pointer;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                        </button>
+                        <button class="action-btn delete" onclick="removeShiftItem(${index})" style="padding: 4px 8px; font-size: 0.8rem; background: #dc2626; color: white; border-radius: 6px; border: none; cursor: pointer;">X</button>
                     </div>
                 </td>
             `;
@@ -746,17 +851,21 @@
     };
 
     // Printing Logic
-    printHistoryBtn.addEventListener('click', () => {
-        document.body.classList.add('printing-history');
-        window.print();
-        document.body.classList.remove('printing-history');
-    });
+    if (printHistoryBtn) {
+        printHistoryBtn.addEventListener('click', () => {
+            document.body.classList.add('printing-history');
+            window.print();
+            document.body.classList.remove('printing-history');
+        });
+    }
 
-    printShiftBtn.addEventListener('click', () => {
-        document.body.classList.add('printing-shift');
-        window.print();
-        document.body.classList.remove('printing-shift');
-    });
+    if (printShiftBtn) {
+        printShiftBtn.addEventListener('click', () => {
+            document.body.classList.add('printing-shift');
+            window.print();
+            document.body.classList.remove('printing-shift');
+        });
+    }
 
     // Delete Logic
     window.requestDelete = function(id) {
@@ -874,280 +983,24 @@
         }
     });
 
-    // --- Game Selection Logic ---
-    window.switchGame = function(game) {
-        document.getElementById('game-selector').classList.add('hidden');
-        if (game === 'rush') {
-            document.getElementById('game-rush').classList.remove('hidden');
-            initRushGame();
-        } else if (game === 'catch') {
-            document.getElementById('game-catch').classList.remove('hidden');
-            initCatchGame();
-        }
-    };
 
-    window.backToSelector = function() {
-        document.getElementById('game-rush').classList.add('hidden');
-        document.getElementById('game-catch').classList.add('hidden');
-        document.getElementById('game-selector').classList.remove('hidden');
-        stopAllGames();
-    };
 
-    function stopAllGames() {
-        if (pumpingInterval) clearInterval(pumpingInterval);
-        if (catchInterval) clearInterval(catchInterval);
-        if (itemSpawnInterval) clearInterval(itemSpawnInterval);
-    }
-
-    // --- Minigame 1 Logic: Frentista Rush ---
-    const abastecerBtn = document.getElementById('abastecer-btn');
-    const fuelGauge = document.getElementById('fuel-gauge');
-    const fuelCounter = document.getElementById('fuel-counter');
-    const targetAmountDisplay = document.getElementById('target-amount');
-    const gameScoreDisplay = document.getElementById('game-score');
-    const gameMessage = document.getElementById('game-message');
-    const scoreHistoryList = document.getElementById('score-history');
-
-    let currentFuel = 0;
-    let targetFuel = 50;
-    let gameScore = 0;
-    let pumpingInterval = null;
-    let gameActive = true;
-    let highScores = JSON.parse(localStorage.getItem('postoFacilScores') || '[]');
-
-    function initRushGame() {
-        currentFuel = 0;
-        targetFuel = parseFloat(Math.random() * 80 + 20).toFixed(2);
-        if (targetAmountDisplay) targetAmountDisplay.textContent = targetFuel;
-        updateRushUI();
-        gameActive = true;
-        if (gameMessage) {
-            gameMessage.textContent = 'Segure para encher o tanque!';
-            gameMessage.style.color = '#666';
-        }
-    }
-
-    function updateRushUI() {
-        if (fuelCounter) fuelCounter.textContent = `R$ ${currentFuel.toFixed(2)}`;
-        const percentage = Math.min((currentFuel / targetFuel) * 100, 100);
-        if (fuelGauge) {
-            fuelGauge.style.height = `${percentage}%`;
-            fuelGauge.style.background = currentFuel > targetFuel ? '#dc2626' : 'var(--primary-yellow)';
-        }
-    }
-
-    function finishRushRound() {
-        gameActive = false;
-        const diff = Math.abs(currentFuel - targetFuel);
-        let roundPoints = 0;
-
-        if (currentFuel > targetFuel) {
-            gameMessage.textContent = '❌ EXCEDEU O LIMITE! Perdeu 10 pontos.';
-            gameMessage.style.color = '#dc2626';
-            roundPoints = -10;
-        } else if (diff <= 0.05) {
-            gameMessage.textContent = '🎯 PERFEITO! +100 Pontos';
-            gameMessage.style.color = '#059669';
-            roundPoints = 100;
-        } else if (diff <= 0.50) {
-            gameMessage.textContent = '⚡ QUASE LÁ! +50 Pontos';
-            gameMessage.style.color = '#0284c7';
-            roundPoints = 50;
-        } else if (diff <= 2.00) {
-            gameMessage.textContent = '👍 BOM TRABALHO! +20 Pontos';
-            gameMessage.style.color = '#0f172a';
-            roundPoints = 20;
-        } else {
-            gameMessage.textContent = '🐢 MUITO LONGE! +5 Pontos';
-            gameMessage.style.color = '#64748b';
-            roundPoints = 5;
-        }
-
-        saveHighScore(roundPoints);
-        setTimeout(initRushGame, 2000);
-    }
-
-    function saveHighScore(points) {
-        gameScore += points;
-        gameScoreDisplay.textContent = gameScore;
-        document.getElementById('catch-score').textContent = gameScore;
-        
-        highScores.unshift({ points, date: new Date().toLocaleTimeString(), totalScore: gameScore });
-        highScores = highScores.slice(0, 5); 
-        localStorage.setItem('postoFacilScores', JSON.stringify(highScores));
-        renderScoreHistory();
-    }
-
-    function renderScoreHistory() {
-        if (!scoreHistoryList) return;
-        scoreHistoryList.innerHTML = highScores.map(s => `
-            <li>
-                <span>${s.date}</span>
-                <strong style="color: ${s.points > 0 ? '#059669' : '#dc2626'}">${s.points > 0 ? '+' : ''}${s.points} pts</strong>
-            </li>
-        `).join('');
-    }
-
-    if (abastecerBtn) {
-        abastecerBtn.addEventListener('mousedown', () => {
-            if (!gameActive) return;
-            pumpingInterval = setInterval(() => {
-                currentFuel += 0.23;
-                updateRushUI();
-                if (currentFuel > targetFuel + 5) {
-                    clearInterval(pumpingInterval);
-                    finishRushRound();
-                }
-            }, 30);
-        });
-
-        abastecerBtn.addEventListener('mouseup', () => {
-            if (pumpingInterval) {
-                clearInterval(pumpingInterval);
-                if (gameActive) finishRushRound();
-            }
-        });
-
-        abastecerBtn.addEventListener('mouseleave', () => {
-            if (pumpingInterval) {
-                clearInterval(pumpingInterval);
-                if (gameActive) finishRushRound();
-            }
-        });
-
-        abastecerBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            abastecerBtn.dispatchEvent(new Event('mousedown'));
-        });
-        abastecerBtn.addEventListener('touchend', () => {
-            abastecerBtn.dispatchEvent(new Event('mouseup'));
-        });
-    }
-
-    // --- Minigame 2 Logic: Conveniência Catch ---
-    const catchArea = document.getElementById('catch-area');
-    const basket = document.getElementById('basket');
-    const moveLeftBtn = document.getElementById('move-left');
-    const moveRightBtn = document.getElementById('move-right');
-    
-    let basketPos = 50; // percentage
-    let catchInterval = null;
-    let itemSpawnInterval = null;
-    const items = ['🍪', '🥤', '🍟', '🥪', '🍫', '🍺'];
-    
-    function initCatchGame() {
-        basketPos = 50;
-        updateBasketPos();
-        gameScore = 0;
-        document.getElementById('catch-score').textContent = '0';
-        gameActive = true;
-        
-        startSpawning();
-        renderScoreHistory();
-    }
-    
-    function updateBasketPos() {
-        basket.style.left = `${basketPos}%`;
-    }
-    
-    function moveBasket(dir) {
-        if (!gameActive) return;
-        basketPos = Math.max(5, Math.min(95, basketPos + dir * 8));
-        updateBasketPos();
-    }
-    
-    moveLeftBtn.addEventListener('click', () => moveBasket(-1));
-    moveRightBtn.addEventListener('click', () => moveBasket(1));
-    
-    // Keyboard controls
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') moveBasket(-1);
-        if (e.key === 'ArrowRight') moveBasket(1);
-    });
-    
-    function startSpawning() {
-        itemSpawnInterval = setInterval(() => {
-            if (!gameActive) return;
-            const item = document.createElement('div');
-            item.className = 'falling-item';
-            item.textContent = items[Math.floor(Math.random() * items.length)];
-            item.style.left = `${Math.random() * 90 + 5}%`;
-            item.style.top = '0px';
-            catchArea.appendChild(item);
-            
-            let pos = 0;
-            const fall = setInterval(() => {
-                if (!gameActive) {
-                    clearInterval(fall);
-                    item.remove();
-                    return;
-                }
-                
-                pos += 3;
-                item.style.top = `${pos}px`;
-                
-                // Collision check
-                if (pos > 250 && pos < 280) {
-                    const itemRange = parseFloat(item.style.left);
-                    if (Math.abs(itemRange - basketPos) < 10) {
-                        saveHighScore(10);
-                        item.remove();
-                        clearInterval(fall);
-                    }
-                }
-                
-                if (pos > 300) {
-                    item.remove();
-                    clearInterval(fall);
-                }
-            }, 20);
-        }, 1200);
-    }
-
-    renderScoreHistory();
 
 // C-Frete Logic
-window.selectFreteView = function(viewName) {
-    const views = document.querySelectorAll('.cfrete-view');
-    views.forEach(v => v.classList.add('hidden'));
-    const target = document.getElementById('cfrete-view-' + viewName);
-    if (target) {
-        target.classList.remove('hidden');
-    }
-};
 
-window.selectFreteType = function(type) {
-    if (type === 'tip') {
-        window.selectFreteView('saldo');
-    } else if (type === 'tmov') {
-        window.selectFreteView('tmov-saldo');
-    } else if (type === 'ff') {
-        window.selectFreteView('ff');
-    }
-};
-
-
-window.selectDiesel = function(btn, price) {
-    const btns = btn.closest('.diesel-selector').querySelectorAll('.btn-diesel');
-    btns.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    
-    const dieselInput = document.getElementById('cfrete-diesel');
-    if (dieselInput) {
-        dieselInput.value = price;
-        window.calculateCfrete();
-    }
-};
 
 window.calculateCfrete = function() {
     const totalInput = document.getElementById('cfrete-total');
     const dieselInput = document.getElementById('cfrete-diesel');
+    const abastInput = document.getElementById('cfrete-abastecimento');
     const resultsArea = document.getElementById('cfrete-results');
+    const splitArea = document.getElementById('cfrete-split-results');
     
-    if (!totalInput || !dieselInput || !resultsArea) return;
+    if (!totalInput || !dieselInput || !resultsArea || !abastInput) return;
     
     const total = parseFloat(totalInput.value);
     const diesel = parseFloat(dieselInput.value);
+    const abast = parseFloat(abastInput.value) || 0;
     
     if (isNaN(total) || total <= 0) {
         resultsArea.classList.add('hidden');
@@ -1159,29 +1012,69 @@ window.calculateCfrete = function() {
     const val45 = total * 0.45;
     const litros = val45 / diesel;
     const saque = total - val45;
+    const troco = saque - abast;
     
     const formatMoney = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
     
-    const resTotal = document.getElementById('res-total');
-    const res45 = document.getElementById('res-45');
-    const resLitros = document.getElementById('res-litros');
-    const resSaque = document.getElementById('res-saque');
-    
-    if (resTotal) resTotal.textContent = formatMoney(total);
-    if (res45) res45.textContent = formatMoney(val45);
-    if (resLitros) resLitros.textContent = litros.toFixed(2) + ' L';
-    if (resSaque) resSaque.textContent = formatMoney(saque);
+    document.getElementById('res-total').textContent = formatMoney(total);
+    document.getElementById('res-45').textContent = formatMoney(val45);
+    document.getElementById('res-litros').textContent = litros.toFixed(2) + ' L';
+    document.getElementById('res-saque').textContent = formatMoney(saque);
+    document.getElementById('res-troco').textContent = formatMoney(troco);
+
+    if (troco > 0) {
+        splitArea.classList.remove('hidden');
+        if (troco > 1500) {
+            const excessoAcima1500 = troco - 1500;
+            
+            // Tenta arredondar o cheque por 1000
+            let picado1000 = excessoAcima1500 % 1000;
+            let dinheiro1000 = 1500 + picado1000;
+            
+            let dinheiro, cheque;
+            
+            if (dinheiro1000 <= 1630) {
+                dinheiro = dinheiro1000;
+                cheque = troco - dinheiro;
+            } else {
+                // Se falhar, tenta arredondar o cheque por 100
+                let picado100 = excessoAcima1500 % 100;
+                let dinheiro100 = 1500 + picado100;
+                
+                // dinheiro100 é sempre <= 1599.99, então sempre passa no teste de 1630
+                dinheiro = dinheiro100;
+                cheque = troco - dinheiro;
+            }
+            
+            document.getElementById('res-dinheiro').textContent = formatMoney(dinheiro);
+            document.getElementById('res-cheque').textContent = formatMoney(cheque);
+            const extensoEl = document.getElementById('res-extenso');
+            extensoEl.textContent = window.numeroParaExtenso(Math.floor(cheque));
+            extensoEl.className = 'result-value res-extenso-large';
+        } else {
+            document.getElementById('res-dinheiro').textContent = formatMoney(troco);
+            document.getElementById('res-cheque').textContent = formatMoney(0);
+            const extensoEl = document.getElementById('res-extenso');
+            extensoEl.textContent = '—';
+            extensoEl.className = 'result-value';
+        }
+    } else {
+        splitArea.classList.add('hidden');
+    }
 };
 
 window.calculateTmovSaldo = function() {
     const totalInput = document.getElementById('tmov-saldo-total');
     const dieselInput = document.getElementById('tmov-diesel');
+    const abastInput = document.getElementById('tmov-abastecimento');
     const resultsArea = document.getElementById('tmov-saldo-results');
+    const splitArea = document.getElementById('tmov-split-results');
     
-    if (!totalInput || !dieselInput || !resultsArea) return;
+    if (!totalInput || !dieselInput || !resultsArea || !abastInput) return;
     
     const total = parseFloat(totalInput.value);
     const diesel = parseFloat(dieselInput.value);
+    const abast = parseFloat(abastInput.value) || 0;
     
     if (isNaN(total) || total <= 0) {
         resultsArea.classList.add('hidden');
@@ -1193,16 +1086,53 @@ window.calculateTmovSaldo = function() {
     const combustivel = total * 0.35;
     const litros = combustivel / diesel;
     const saque = total - combustivel;
+    const troco = saque - abast;
     
     const formatMoney = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
     
-    const resCombustivel = document.getElementById('res-tmov-combustivel');
-    const resLitros = document.getElementById('res-tmov-litros');
-    const resSaque = document.getElementById('res-tmov-saque');
-    
-    if (resCombustivel) resCombustivel.textContent = formatMoney(combustivel);
-    if (resLitros) resLitros.textContent = litros.toFixed(2) + ' L';
-    if (resSaque) resSaque.textContent = formatMoney(saque);
+    document.getElementById('res-tmov-combustivel').textContent = formatMoney(combustivel);
+    document.getElementById('res-tmov-litros').textContent = litros.toFixed(2) + ' L';
+    document.getElementById('res-tmov-saque').textContent = formatMoney(saque);
+    document.getElementById('res-tmov-troco').textContent = formatMoney(troco);
+
+    if (troco > 0) {
+        splitArea.classList.remove('hidden');
+        if (troco > 1500) {
+            const excessoAcima1500 = troco - 1500;
+            
+            // Tenta arredondar o cheque por 1000
+            let picado1000 = excessoAcima1500 % 1000;
+            let dinheiro1000 = 1500 + picado1000;
+            
+            let dinheiro, cheque;
+            
+            if (dinheiro1000 <= 1630) {
+                dinheiro = dinheiro1000;
+                cheque = troco - dinheiro;
+            } else {
+                // Se falhar, tenta arredondar o cheque por 100
+                let picado100 = excessoAcima1500 % 100;
+                let dinheiro100 = 1500 + picado100;
+                
+                dinheiro = dinheiro100;
+                cheque = troco - dinheiro;
+            }
+            
+            document.getElementById('res-tmov-dinheiro').textContent = formatMoney(dinheiro);
+            document.getElementById('res-tmov-cheque').textContent = formatMoney(cheque);
+            const extensoEl = document.getElementById('res-tmov-extenso');
+            extensoEl.textContent = window.numeroParaExtenso(Math.floor(cheque));
+            extensoEl.className = 'result-value res-extenso-large';
+        } else {
+            document.getElementById('res-tmov-dinheiro').textContent = formatMoney(troco);
+            document.getElementById('res-tmov-cheque').textContent = formatMoney(0);
+            const extensoEl = document.getElementById('res-tmov-extenso');
+            extensoEl.textContent = '—';
+            extensoEl.className = 'result-value';
+        }
+    } else {
+        splitArea.classList.add('hidden');
+    }
 };
 
     // --- Comanda Logic ---
@@ -1363,7 +1293,7 @@ window.calculateTmovSaldo = function() {
                 div.innerHTML = `
                     <span style="font-weight: 500;">${item.name}</span>
                     <span style="color: #64748b; text-align: center;">${item.qty}x</span>
-                    ${readOnly ? '' : `<button onclick="removeProductFromComanda(${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.2rem;">&times;</button>`}
+                    ${readOnly ? '' : `<button onclick="removeProductFromComanda(${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.2rem;">X</button>`}
                 `;
                 comandaItemsList.appendChild(div);
             });
@@ -1406,7 +1336,7 @@ window.calculateTmovSaldo = function() {
             
             // Show feedback
             const feedback = document.getElementById('comanda-add-feedback');
-            feedback.textContent = `✓ ${qty}x ${name.toUpperCase()} adicionado!`;
+            feedback.textContent = `[OK] ${qty}x ${name.toUpperCase()} adicionado!`;
             feedback.style.display = 'block';
             setTimeout(() => { feedback.style.display = 'none'; }, 2500);
 
@@ -1529,12 +1459,91 @@ window.calculateTmovSaldo = function() {
     // Initialize listeners for C-Frete
     const cfreteTotalInput = document.getElementById('cfrete-total');
     if (cfreteTotalInput) {
-        cfreteTotalInput.addEventListener('input', window.calculateCfrete);
+        cfreteTotalInput.addEventListener('input', () => {
+            window.calculateCfrete();
+        });
     }
     
+    const abastInputTip = document.getElementById('cfrete-abastecimento');
+    if (abastInputTip) {
+        abastInputTip.addEventListener('input', () => window.calculateCfrete());
+    }
+
     const tmovTotalInput = document.getElementById('tmov-saldo-total');
     if (tmovTotalInput) {
-        tmovTotalInput.addEventListener('input', window.calculateTmovSaldo);
+        tmovTotalInput.addEventListener('input', () => {
+            window.calculateTmovSaldo();
+        });
+    }
+
+    const abastInputTmov = document.getElementById('tmov-abastecimento');
+    if (abastInputTmov) {
+        abastInputTmov.addEventListener('input', () => window.calculateTmovSaldo());
+    }
+
+    // --- Cheque Logic ---
+    const chequeValueInput = document.getElementById('cheque-value');
+    const chequeExtensoOutput = document.getElementById('cheque-extenso');
+
+    if (chequeValueInput) {
+        chequeValueInput.addEventListener('input', () => {
+            console.log('Cheque input changed:', chequeValueInput.value); // Debug
+            const val = parseFloat(chequeValueInput.value);
+            if (isNaN(val) || val <= 0) {
+                chequeExtensoOutput.textContent = 'Aguardando valor...';
+                return;
+            }
+            const integerPart = Math.floor(val);
+            chequeExtensoOutput.textContent = numeroParaExtenso(integerPart);
+        });
+    }
+
+    window.numeroParaExtenso = function(num) {
+        if (num === 0) return 'Zero Reais';
+        
+        const unidades = ['', 'Um', 'Dois', 'Três', 'Quatro', 'Cinco', 'Seis', 'Sete', 'Oito', 'Nove'];
+        const dezena10 = ['Dez', 'Onze', 'Doze', 'Treze', 'Quaturze', 'Quinze', 'Dezesseis', 'Dezessete', 'Dezoito', 'Dezenove'];
+        const dezenas = ['', '', 'Vinte', 'Trinta', 'Quarenta', 'Cinquenta', 'Sessenta', 'Setenta', 'Oitenta', 'Noventa'];
+        const centenas = ['', 'Cento', 'Duzentos', 'Trezentos', 'Quatrocentos', 'Quinhentos', 'Seiscentos', 'Setecentos', 'Oitocentos', 'Novecentos'];
+
+        function converter(n) {
+            if (n === 100) return 'Cem';
+            if (n < 10) return unidades[n];
+            if (n < 20) return dezena10[n - 10];
+            if (n < 100) {
+                const d = Math.floor(n / 10);
+                const u = n % 10;
+                return dezenas[d] + (u > 0 ? ' e ' + unidades[u] : '');
+            }
+            if (n < 1000) {
+                const c = Math.floor(n / 100);
+                const r = n % 100;
+                return centenas[c] + (r > 0 ? ' e ' + converter(r) : '');
+            }
+            return '';
+        }
+
+        let extenso = '';
+        const milhao = Math.floor(num / 1000000);
+        const mil = Math.floor((num % 1000000) / 1000);
+        const restoMil = num % 1000;
+
+        if (milhao > 0) {
+            extenso = converter(milhao) + (milhao === 1 ? ' Milhão' : ' Milhões');
+            if (mil > 0 || restoMil > 0) extenso += ', ';
+        }
+
+        if (mil > 0) {
+            if (mil === 1) extenso += 'Hum Mil';
+            else extenso += converter(mil) + ' Mil';
+            if (restoMil > 0) {
+                extenso += (restoMil <= 100 || restoMil % 100 === 0 ? ' e ' : ' ') + converter(restoMil);
+            }
+        } else if (restoMil > 0 || milhao === 0) {
+            extenso += converter(restoMil);
+        }
+
+        return (extenso + (num === 1 ? ' Real' : ' Reais')).trim();
     }
 
     // --- Global Enter Key Navigation ---
@@ -1562,5 +1571,133 @@ window.calculateTmovSaldo = function() {
         }
     });
 
+    // --- C-Frete Finalization & History ---
+    let cfreteHistory = JSON.parse(localStorage.getItem('postoFacilCFreteHistory') || '[]');
+
+    window.finalizeCFrete = function(type) {
+        const prefix = type === 'TMOV' ? 'res-tmov-' : 'res-';
+        const idPrefix = type === 'TMOV' ? 'tmov-' : 'cfrete-';
+        
+        const inputVal = document.getElementById(idPrefix + (type === 'TMOV' ? 'saldo-total' : 'total')).value;
+        if (!inputVal || inputVal <= 0) {
+            alert('Não há operação para finalizar.');
+            return;
+        }
+
+        const formatBRL = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+        
+        const total = formatBRL(parseFloat(inputVal));
+        const percLabel = type === 'TMOV' ? '35%' : '45%';
+        const percValue = document.getElementById(prefix + (type === 'TMOV' ? 'combustivel' : '45')).textContent;
+        const saque = document.getElementById(prefix + 'saque').textContent;
+        const troco = document.getElementById(prefix + 'troco').textContent;
+        const dinheiro = document.getElementById(prefix + 'dinheiro').textContent;
+        const cheque = document.getElementById(prefix + 'cheque').textContent;
+        const extenso = document.getElementById(prefix + 'extenso').textContent;
+        const litros = document.getElementById(prefix + 'litros').textContent;
+
+        if (!confirm(`Deseja finalizar esta operação de ${type} e salvar no histórico?`)) return;
+
+        const operation = {
+            id: Date.now(),
+            type: type,
+            timestamp: new Date().toISOString(),
+            inputTotal: total,
+            percLabel: percLabel,
+            percValue: percValue,
+            saque: saque,
+            troco: troco,
+            dinheiro: dinheiro,
+            cheque: cheque,
+            extenso: extenso,
+            litros: litros
+        };
+
+        cfreteHistory.unshift(operation);
+        if (cfreteHistory.length > 50) cfreteHistory.pop();
+        localStorage.setItem('postoFacilCFreteHistory', JSON.stringify(cfreteHistory));
+        
+        renderCFreteHistory();
+        alert('Operação finalizada com sucesso!');
+        
+        // Limpar inputs
+        if (type === 'TMOV') {
+            document.getElementById('tmov-saldo-total').value = '';
+            document.getElementById('tmov-abastecimento').value = '';
+            window.calculateTmovSaldo();
+        } else {
+            document.getElementById('cfrete-total').value = '';
+            document.getElementById('cfrete-abastecimento').value = '';
+            window.calculateCfrete();
+        }
+    };
+
+    window.downloadCFreteHistory = function(type) {
+        const filtered = cfreteHistory.filter(h => h.type === type);
+        if (filtered.length === 0) {
+            alert('Nenhum histórico para baixar.');
+            return;
+        }
+
+        let content = `RELATÓRIO DE OPERAÇÃO C-FRETE (${type})\n`;
+        content += `Gerado em: ${new Date().toLocaleString('pt-BR')}\n`;
+        content += `===========================================\n\n`;
+
+        filtered.forEach(op => {
+            content += `DATA: ${new Date(op.timestamp).toLocaleString('pt-BR')}\n`;
+            content += `ID: #${op.id.toString().slice(-6)}\n`;
+            content += `SALDO TOTAL: ${op.inputTotal}\n`;
+            content += `VALOR ${op.percLabel}: ${op.percValue}\n`;
+            content += `LITRAGEM: ${op.litros}\n`;
+            content += `VALOR SAQUE: ${op.saque}\n`;
+            content += `-------------------------------------------\n`;
+            content += `TROCO FINAL: ${op.troco}\n`;
+            content += `DINHEIRO: ${op.dinheiro}\n`;
+            content += `CHEQUE: ${op.cheque}\n`;
+            content += `EXTENSO: ${op.extenso}\n`;
+            content += `===========================================\n\n`;
+        });
+
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `relatorio_completo_cfrete_${type.toLowerCase()}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    function renderCFreteHistory() {
+        const tmovList = document.getElementById('tmov-history-list');
+        const tipList = document.getElementById('tip-history-list');
+        
+        if (!tmovList || !tipList) return;
+
+        tmovList.innerHTML = '';
+        tipList.innerHTML = '';
+
+        cfreteHistory.forEach(op => {
+            const list = op.type === 'TMOV' ? tmovList : tipList;
+            const div = document.createElement('div');
+            div.style.cssText = 'background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px; margin-bottom: 10px; font-size: 0.85rem; animation: fadeIn 0.3s ease-out;';
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom: 8px; color: #64748b; font-weight: 700;">
+                    <span>${new Date(op.timestamp).toLocaleString('pt-BR')}</span>
+                    <span style="color: var(--primary-blue);">Troco: ${op.troco}</span>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; color: #1e293b;">
+                    <div><strong>Dinheiro:</strong> ${op.dinheiro}</div>
+                    <div><strong>Cheque:</strong> ${op.cheque}</div>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    renderCFreteHistory();
+    window.updateDieselDisplays();
+    console.log('PostoFacil Initialized');
 });
 

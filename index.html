@@ -52,7 +52,7 @@
             <div class="sidebar-header">
                 <h3>Histórico</h3>
                 <button id="print-history-btn" class="btn-history-print">
-                    🖨️ Imprimir Histórico
+                    Imprimir Histórico
                 </button>
             </div>
             <div id="history-list" class="history-list">
@@ -86,7 +86,7 @@
 
                     <button class="tab-btn" data-tab="cfrete">C-Frete</button>
                     <button class="tab-btn" data-tab="comanda">Comanda</button>
-                    <button class="tab-btn" data-tab="minigame">Minigame</button>
+                    <button class="tab-btn" data-tab="cheque">Cheque</button>
                 </div>
 
                 <!-- Tab: Home -->
@@ -214,38 +214,116 @@
                                 <h3 style="color: var(--primary-blue);">Calculadora TMOV - Saldo</h3>
                             </div>
                             
-                            <div class="shift-form-card" style="max-width: 600px; margin: 0 auto;">
-                                <div style="background: #ecfccb; color: #3f6212; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; font-weight: 600; text-align: center; border: 1px solid #d9f99d;">
-                                    Alteração do preço do diesel já corrigida.
-                                </div>
-                                <div class="inputs-area" style="grid-template-columns: 1fr; margin-bottom: 20px;">
-                                    <div class="input-card">
-                                        <label>Saldo Total (R$)</label>
-                                        <input type="number" id="tmov-saldo-total" placeholder="0,00" step="0.01">
+
+                            
+                            <div class="cfrete-card-container cfrete-layout-wrapper">
+                                <div class="cfrete-main-content">
+                                    <div style="background: #fdf2f2; color: #991b1b; padding: 12px; border-radius: 12px; margin-bottom: 20px; font-size: 0.85rem; font-weight: 700; text-align: center; border: 1px solid #fee2e2; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        Aviso: Alteração de preço disponível no botão de lápis
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 5px;"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                                     </div>
-                                    <input type="hidden" id="tmov-diesel" value="5.82">
+
+                                    <div class="inputs-area" style="margin-bottom: 25px; gap: 20px;">
+                                        <div class="input-card">
+                                            <label>Saldo Total (R$)</label>
+                                            <input type="number" id="tmov-saldo-total" placeholder="0,00" step="0.01">
+                                        </div>
+                                        <div class="input-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                                            <label>Tipo Diesel</label>
+                                            <div class="diesel-selector">
+                                                <button class="btn-diesel active" id="btn-diesel-s10-tmov" onclick="selectDieselS10('tmov')">
+                                                    <div class="diesel-info">
+                                                        <span class="d-type">S10</span>
+                                                        <span class="d-price" id="display-diesel-s10-tmov">R$ 5,82</span>
+                                                    </div>
+                                                    <span class="edit-icon" onclick="editDieselPrice('s10', event)">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                                                    </span>
+                                                </button>
+                                                <button class="btn-diesel" id="btn-diesel-s500-tmov" onclick="selectDieselS500('tmov')">
+                                                    <div class="diesel-info">
+                                                        <span class="d-type">S500</span>
+                                                        <span class="d-price" id="display-diesel-s500-tmov">R$ 5,76</span>
+                                                    </div>
+                                                    <span class="edit-icon" onclick="editDieselPrice('s500', event)">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" id="tmov-diesel" value="5.82">
+                                    </div>
+
+                                    <div id="tmov-saldo-results" class="results-display hidden">
+                                        <div class="result-row row-highlight">
+                                            <div class="result-label">COMBUSTÍVEL (35%):</div>
+                                            <div class="result-value" id="res-tmov-combustivel">R$ 0,00</div>
+                                        </div>
+                                        <div class="result-row row-highlight">
+                                            <div class="result-label">QNTD LITROS:</div>
+                                            <div class="result-value" id="res-tmov-litros">0,00 L</div>
+                                        </div>
+                                        <div class="result-row row-success">
+                                            <div class="result-label">VALOR SAQUE:</div>
+                                            <div class="result-value" id="res-tmov-saque">R$ 0,00</div>
+                                        </div>
+
+                                        <!-- Abastecimento moved here -->
+                                        <div class="input-card input-card-operation" style="margin: 20px 0; border: 2px solid var(--primary-blue);">
+                                            <label style="color: var(--primary-blue); font-weight: 800; font-size: 0.9rem;">VALOR ABASTECIMENTO (Outra Operação)</label>
+                                            <input type="number" id="tmov-abastecimento" placeholder="0,00" step="0.01" style="font-size: 2rem; border-color: var(--primary-blue);">
+                                        </div>
+
+                                        <div class="result-row row-warning row-total">
+                                            <div class="result-label">TROCO:</div>
+                                            <div class="result-value" id="res-tmov-troco">R$ 0,00</div>
+                                        </div>
+
+                                        <div id="tmov-split-results" class="hidden" style="margin-top: 15px; border-top: 2px dashed #e2e8f0; padding-top: 15px;">
+                                            <div class="result-row row-highlight">
+                                                <div class="result-label">DINHEIRO:</div>
+                                                <div class="result-value" id="res-tmov-dinheiro">R$ 0,00</div>
+                                            </div>
+                                            <div class="result-row row-highlight">
+                                                <div class="result-label">CHEQUE:</div>
+                                                <div class="result-value" id="res-tmov-cheque">R$ 0,00</div>
+                                            </div>
+                                            <div class="result-row row-highlight" style="flex-direction: column; align-items: flex-start; gap: 5px;">
+                                                <div class="result-label">CH. EXTENSO:</div>
+                                                <div class="result-value" id="res-tmov-extenso" style="font-size: 0.85rem; text-align: left; width: 100%;">Aguardando...</div>
+                                            </div>
+                                            
+                                            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                                                <button onclick="finalizeCFrete('TMOV')" class="btn-primary" style="flex: 1; height: 55px; border-radius: 15px; background: #059669;">
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                                                    FINALIZAR OPERAÇÃO
+                                                </button>
+                                                <button onclick="downloadCFreteHistory('TMOV')" class="btn-primary" style="width: 60px; height: 55px; border-radius: 15px; background: #4b5563;">
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Recent History Area -->
+                                    <div id="tmov-history-list" style="margin-top: 30px;"></div>
                                 </div>
 
-                                <div id="tmov-saldo-results" class="results-display hidden" style="background: white; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0;">
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.2rem; background: #fff7ed; padding: 15px; border-radius: 10px; color: #9a3412; border: 1px solid #ffedd5;">
-                                        <span>COMBUSTIVEL:</span>
-                                        <strong id="res-tmov-combustivel">R$ 0,00</strong>
+                                <div class="cfrete-sidebar-info">
+                                    <div class="info-card-premium">
+                                        <div class="info-item-premium">
+                                            <span class="info-tag">SITE</span>
+                                            <span class="info-val">Tmov Pay</span>
+                                        </div>
+                                        <div class="info-item-premium">
+                                            <span class="info-tag">COD</span>
+                                            <span class="info-val">#6989</span>
+                                        </div>
+                                        <div class="info-item-premium">
+                                            <span class="info-tag">CADASTRO</span>
+                                            <span class="info-val">Sotran Logística e Transporte</span>
+                                        </div>
                                     </div>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-                                        <span>Qntd Litros:</span>
-                                        <strong id="res-tmov-litros" style="color: var(--primary-blue);">0,00 L</strong>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between; font-size: 1.5rem; background: #ecfccb; padding: 15px; border-radius: 10px; color: #3f6212;">
-                                        <span>SAQUE:</span>
-                                        <strong id="res-tmov-saque">R$ 0,00</strong>
-                                    </div>
-                                </div>
-
-                                <!-- TMOV Info -->
-                                <div class="info-card-frete" style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
-                                    <p><strong>Site:</strong> Tmov Pay</p>
-                                    <p><strong>Cadastro C-Frete:</strong> Sotran Logistica e Transporte</p>
-                                    <p><strong>Cod:</strong> #6989</p>
                                 </div>
                             </div>
                         </div>
@@ -257,92 +335,155 @@
                                 <h3 style="color: var(--primary-blue);">Calculadora de Saldo</h3>
                             </div>
                             
-                            <div class="shift-form-card" style="max-width: 600px; margin: 0 auto;">
-                                <div style="background: #ecfccb; color: #3f6212; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; font-weight: 600; text-align: center; border: 1px solid #d9f99d;">
-                                    Alteração do preço do diesel já corrigida.
-                                </div>
-                                <div class="inputs-area" style="grid-template-columns: 1fr 1fr; margin-bottom: 20px;">
-                                    <div class="input-card">
-                                        <label>Valor Total (R$)</label>
-                                        <input type="number" id="cfrete-total" placeholder="0,00" step="0.01">
+                            <div class="cfrete-card-container cfrete-layout-wrapper">
+                                <div class="cfrete-main-content">
+                                    <div style="background: #fdf2f2; color: #991b1b; padding: 12px; border-radius: 12px; margin-bottom: 20px; font-size: 0.85rem; font-weight: 700; text-align: center; border: 1px solid #fee2e2; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        Aviso: Alteração de preço disponível no botão de lápis
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 5px;"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                                     </div>
-                                    <div class="input-card">
-                                        <label>Tipo Diesel</label>
-                                        <div class="diesel-selector">
-                                            <button class="btn-diesel active" data-price="5.82" onclick="selectDiesel(this, 5.82)">
-                                                <span class="d-type">S10</span>
-                                                <span class="d-price">R$ 5,82</span>
-                                            </button>
-                                            <button class="btn-diesel" data-price="5.76" onclick="selectDiesel(this, 5.76)">
-                                                <span class="d-type">S500</span>
-                                                <span class="d-price">R$ 5,76</span>
-                                            </button>
+
+                                    <div class="inputs-area" style="margin-bottom: 25px; gap: 20px;">
+                                        <div class="input-card">
+                                            <label>Valor Total (R$)</label>
+                                            <input type="number" id="cfrete-total" placeholder="0,00" step="0.01">
+                                        </div>
+                                        <div class="input-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                                            <label>Tipo Diesel</label>
+                                            <div class="diesel-selector">
+                                                <button class="btn-diesel active" id="btn-diesel-s10-tip" onclick="selectDieselS10('tip')">
+                                                    <div class="diesel-info">
+                                                        <span class="d-type">S10</span>
+                                                        <span class="d-price" id="display-diesel-s10-tip">R$ 5,82</span>
+                                                    </div>
+                                                    <span class="edit-icon" onclick="editDieselPrice('s10', event)">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                                                    </span>
+                                                </button>
+                                                <button class="btn-diesel" id="btn-diesel-s500-tip" onclick="selectDieselS500('tip')">
+                                                    <div class="diesel-info">
+                                                        <span class="d-type">S500</span>
+                                                        <span class="d-price" id="display-diesel-s500-tip">R$ 5,76</span>
+                                                    </div>
+                                                    <span class="edit-icon" onclick="editDieselPrice('s500', event)">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                                                    </span>
+                                                </button>
+                                            </div>
                                         </div>
                                         <input type="hidden" id="cfrete-diesel" value="5.82">
                                     </div>
+
+                                    <div id="cfrete-results" class="results-display hidden">
+                                        <div class="result-row row-highlight">
+                                            <div class="result-label">TOTAL:</div>
+                                            <div class="result-value" id="res-total">R$ 0,00</div>
+                                        </div>
+                                        <div class="result-row row-highlight">
+                                            <div class="result-label">VALOR 45%:</div>
+                                            <div class="result-value" id="res-45">R$ 0,00</div>
+                                        </div>
+                                        <div class="result-row row-highlight">
+                                            <div class="result-label">QNTD LITROS:</div>
+                                            <div class="result-value" id="res-litros">0,00 L</div>
+                                        </div>
+                                        <div class="result-row row-success">
+                                            <div class="result-label">VALOR SAQUE:</div>
+                                            <div class="result-value" id="res-saque">R$ 0,00</div>
+                                        </div>
+                                        <!-- Abastecimento moved here -->
+                                        <div class="input-card input-card-operation" style="margin: 20px 0; border: 2px solid var(--primary-blue);">
+                                            <label style="color: var(--primary-blue); font-weight: 800; font-size: 0.9rem;">VALOR ABASTECIMENTO (Outra Operação)</label>
+                                            <input type="number" id="cfrete-abastecimento" placeholder="0,00" step="0.01" style="font-size: 2rem; border-color: var(--primary-blue);">
+                                        </div>
+                                        <div class="result-row row-warning row-total">
+                                            <div class="result-label">TROCO:</div>
+                                            <div class="result-value" id="res-troco">R$ 0,00</div>
+                                        </div>
+
+                                        <div id="cfrete-split-results" class="hidden" style="margin-top: 15px; border-top: 2px dashed #e2e8f0; padding-top: 15px;">
+                                            <div class="result-row row-highlight">
+                                                <div class="result-label">DINHEIRO:</div>
+                                                <div class="result-value" id="res-dinheiro">R$ 0,00</div>
+                                            </div>
+                                            <div class="result-row row-highlight">
+                                                <div class="result-label">CHEQUE:</div>
+                                                <div class="result-value" id="res-cheque">R$ 0,00</div>
+                                            </div>
+                                            <div class="result-row row-highlight" style="flex-direction: column; align-items: flex-start; gap: 5px;">
+                                                <div class="result-label">CH. EXTENSO:</div>
+                                                <div class="result-value" id="res-extenso" style="font-size: 0.85rem; text-align: left; width: 100%;">Aguardando...</div>
+                                            </div>
+
+                                            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                                                <button onclick="finalizeCFrete('TIP')" class="btn-primary" style="flex: 1; height: 55px; border-radius: 15px; background: #059669;">
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                                                    FINALIZAR OPERAÇÃO
+                                                </button>
+                                                <button onclick="downloadCFreteHistory('TIP')" class="btn-primary" style="width: 60px; height: 55px; border-radius: 15px; background: #4b5563;">
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Recent History Area -->
+                                    <div id="tip-history-list" style="margin-top: 30px;"></div>
                                 </div>
 
-                                <div id="cfrete-results" class="results-display hidden" style="background: white; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0;">
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.1rem;">
-                                        <span>Total:</span>
-                                        <strong id="res-total" style="color: var(--primary-blue);">R$ 0,00</strong>
+                                <div class="cfrete-sidebar-info">
+                                    <div class="info-card-premium">
+                                        <div class="info-item-premium">
+                                            <span class="info-tag">SITE</span>
+                                            <span class="info-val">Strada Frete</span>
+                                        </div>
+                                        <div class="info-item-premium">
+                                            <span class="info-tag">COD</span>
+                                            <span class="info-val">#6302</span>
+                                        </div>
+                                        <div class="info-item-premium">
+                                            <span class="info-tag">CADASTRO</span>
+                                            <span class="info-val">Tip Frete</span>
+                                        </div>
                                     </div>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.1rem;">
-                                        <span>Valor 45%:</span>
-                                        <strong id="res-45" style="color: #ea580c;">R$ 0,00</strong>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-                                        <span>Qntd Litros:</span>
-                                        <strong id="res-litros" style="color: var(--primary-blue);">0,00 L</strong>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between; font-size: 1.5rem; background: #ecfccb; padding: 15px; border-radius: 10px; color: #3f6212;">
-                                        <span>Valor Saque:</span>
-                                        <strong id="res-saque">R$ 0,00</strong>
-                                    </div>
-                                </div>
-
-                                <!-- TIP Info -->
-                                <div class="info-card-frete" style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
-                                    <p><strong>Site:</strong> Strada Frete</p>
-                                    <p><strong>Cadastro C-Frete:</strong> Tip Frete</p>
-                                    <p><strong>Cod:</strong> #6302</p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- View 5: FF REDE / FF CRED -->
                         <div id="cfrete-view-ff" class="cfrete-view hidden">
-                            <div class="view-header" style="display: flex; align-items: center; margin-bottom: 20px;">
-                                <button class="btn-secondary" onclick="selectFreteView('initial')" style="margin-right: 20px; color: var(--primary-blue); border-color: var(--primary-blue);">Voltar</button>
-                                <h3 style="color: var(--primary-blue);">FFCRED (FF)</h3>
+                            <div class="view-header" style="display: flex; align-items: center; margin-bottom: 25px;">
+                                <button class="btn-secondary" onclick="selectFreteView('initial')" style="margin-right: 20px; color: var(--primary-blue); border-color: var(--primary-blue); font-size: 0.9rem;">Voltar</button>
+                                <h3 style="color: var(--primary-blue); font-size: 1.5rem;">FFCRED (FF)</h3>
                             </div>
                             
-                            <div class="shift-form-card" style="max-width: 600px; margin: 0 auto;">
-                                <div class="info-card-frete" style="margin-bottom: 20px; padding: 15px; background: #eff6ff; border-radius: 12px; border: 1px solid #dbeafe; color: #1e40af;">
-                                    <p><strong>Site:</strong> Tech4Log</p>
-                                    <p><strong>Cadastro c-frete no sistema:</strong> FF REDE</p>
+                            <div class="cfrete-card-container">
+                                <div class="info-banner info-banner-blue">
+                                    <div>
+                                        <div style="font-weight: 800;">Site: Tech4Log</div>
+                                        <div style="font-size: 0.8rem; opacity: 0.8;">Cadastro no sistema: FF REDE</div>
+                                    </div>
                                 </div>
 
-                                <div class="instruction-steps" style="display: flex; flex-direction: column; gap: 15px; padding: 10px;">
-                                    <div class="step-item" style="display: flex; align-items: center; gap: 15px; font-size: 1.1rem; font-weight: 600;">
-                                        <span style="background: var(--primary-blue); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">1</span>
-                                        <p>Primeiro: coloque o nº CIOT</p>
+                                <div class="instruction-steps" style="display: flex; flex-direction: column; gap: 12px;">
+                                    <div class="step-item" style="display: flex; align-items: center; gap: 15px; font-size: 1rem; font-weight: 700; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                        <span style="background: var(--primary-blue); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.8rem;">1</span>
+                                        <p>Coloque o nº CIOT</p>
                                     </div>
-                                    <div class="step-item" style="display: flex; align-items: center; gap: 15px; font-size: 1.1rem; font-weight: 600;">
-                                        <span style="background: var(--primary-blue); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">2</span>
-                                        <p>Segundo: escolher saldo ou adiantamento</p>
+                                    <div class="step-item" style="display: flex; align-items: center; gap: 15px; font-size: 1rem; font-weight: 700; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                        <span style="background: var(--primary-blue); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.8rem;">2</span>
+                                        <p>Escolher saldo ou adiantamento</p>
                                     </div>
-                                    <div class="step-item" style="display: flex; align-items: center; gap: 15px; font-size: 1.1rem; font-weight: 600;">
-                                        <span style="background: var(--primary-blue); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">3</span>
-                                        <p>Terceiro: colocar ticket de balança (se for saldo)</p>
+                                    <div class="step-item" style="display: flex; align-items: center; gap: 15px; font-size: 1rem; font-weight: 700; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                        <span style="background: var(--primary-blue); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.8rem;">3</span>
+                                        <p>Colocar ticket balança (se for saldo)</p>
                                     </div>
-                                    <div class="step-item" style="display: flex; align-items: center; gap: 15px; font-size: 1.1rem; font-weight: 600;">
-                                        <span style="background: var(--primary-blue); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">4</span>
-                                        <p>Quarto: clicar em pagar</p>
+                                    <div class="step-item" style="display: flex; align-items: center; gap: 15px; font-size: 1rem; font-weight: 700; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                        <span style="background: var(--primary-blue); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.8rem;">4</span>
+                                        <p>Clicar em pagar</p>
                                     </div>
-                                    <div class="step-item" style="display: flex; align-items: center; gap: 15px; font-size: 1.1rem; font-weight: 600;">
-                                        <span style="background: var(--primary-blue); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">5</span>
-                                        <p>Quinto: imprimir 2 vias</p>
+                                    <div class="step-item" style="display: flex; align-items: center; gap: 15px; font-size: 1rem; font-weight: 700; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                        <span style="background: var(--primary-blue); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.8rem;">5</span>
+                                        <p>Imprimir 2 vias</p>
                                     </div>
                                 </div>
                             </div>
@@ -379,73 +520,29 @@
                         </div>
                     </div>
                 </div>
-                <div id="tab-minigame" class="tab-content hidden">
-                    <div class="game-container">
-                        <!-- Game Selector -->
-                        <div id="game-selector" class="game-selector">
-                            <h2 style="margin-bottom: 30px; color: var(--primary-blue);">ESCOLHA SEU DESAFIO</h2>
-                            <div class="game-cards">
-                                <div class="game-card" onclick="switchGame('rush')">
-                                    <h4>Frentista Rush</h4>
-                                    <p>Abasteça com precisão!</p>
-                                </div>
-                                <div class="game-card" onclick="switchGame('catch')">
-                                    <h4>Conveniência Catch</h4>
-                                    <p>Pegue os produtos!</p>
-                                </div>
+
+                <!-- Tab: Cheque -->
+                <div id="tab-cheque" class="tab-content hidden">
+                    <div class="cheque-container" style="padding: 20px; max-width: 800px; margin: 0 auto;">
+                        <h2 style="color: var(--primary-blue); text-align: center; margin-bottom: 30px;">Conversor de Cheque</h2>
+                        
+                        <div class="shift-form-card">
+                            <div class="input-card" style="margin-bottom: 20px;">
+                                <label for="cheque-value">Valor do Cheque (R$)</label>
+                                <input type="number" id="cheque-value" step="0.01" placeholder="0,00" style="font-size: 2rem; padding: 15px; text-align: center;">
                             </div>
                         </div>
 
-                        <!-- Game 1: Frentista Rush -->
-                        <div id="game-rush" class="hidden">
-                            <div class="game-header">
-                                <div class="score-board">Pontos: <span id="game-score">0</span></div>
-                                <button class="btn-primary" onclick="backToSelector()" style="padding: 5px 15px; font-size: 0.8rem;">Voltar</button>
-                            </div>
-
-                            <div class="target-info">Meta: R$ <span id="target-amount">50.00</span></div>
-                            <p id="game-message" style="font-weight: 700; color: #666;">Encha o tanque sem ultrapassar!</p>
-
-                            <div class="fuel-area">
-                                <div class="fuel-gauge" id="fuel-gauge" style="height: 0%;"></div>
-                                <div class="car-box">Carro</div>
-                                <div id="fuel-counter" style="position: absolute; top: 20px; font-weight: 950; font-size: 2.5rem; color: var(--primary-blue); text-shadow: 2px 2px white;">R$ 0.00</div>
-                            </div>
-
-                            <div class="game-btn-container">
-                                <button id="abastecer-btn" class="game-btn">
-                                    <span>SEGURE PARA</span>
-                                    <span style="font-size: 1.5rem;">ABASTECER</span>
-                                </button>
-                            </div>
+                        <div id="cheque-result-area" class="results-display" style="background: white; padding: 30px; border-radius: 20px; border: 2px solid var(--primary-blue); margin-top: 20px; min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                            <div style="font-size: 0.9rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Valor por Extenso</div>
+                            <div id="cheque-extenso" style="font-size: 1.8rem; font-weight: 700; color: var(--primary-blue); text-align: center; line-height: 1.4;">Aguardando valor...</div>
                         </div>
 
-                        <!-- Game 2: Conveniência Catch -->
-                        <div id="game-catch" class="hidden">
-                            <div class="game-header">
-                                <div class="score-board">Pontos: <span id="catch-score">0</span></div>
-                                <button class="btn-primary" onclick="backToSelector()" style="padding: 5px 15px; font-size: 0.8rem;">Voltar</button>
-                            </div>
-                            
-                            <p style="font-weight: 700; color: #666; margin-bottom: 10px;">Mova a cesta para pegar os produtos!</p>
-                            
-                            <div id="catch-area" class="catch-area">
-                                <div id="basket" class="basket">Cesta</div>
-                            </div>
-                            
-                            <div class="game-controls">
-                                <button class="btn-secondary" id="move-left">◀ ESQUERDA</button>
-                                <button class="btn-secondary" id="move-right">DIREITA ▶</button>
-                            </div>
-                        </div>
 
-                        <!-- Shared History -->
-                        <div class="high-scores" style="margin-top: 20px;">
-                            <h4>Melhores Pontuações</h4>
-                            <ul id="score-history"></ul>
-                        </div>
                     </div>
                 </div>
+
+
             </section>
         </main>
     </div>
@@ -536,6 +633,21 @@
                     <button id="btn-close-manage" class="btn-secondary" style="border: 1px solid #cbd5e1; color: #64748b;">Fechar</button>
                     <button id="btn-finalize-comanda" class="btn-modal-confirm" style="background: #10b981;">Finalizar e Receber</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="diesel-modal" class="modal hidden">
+        <div class="modal-content small-modal">
+            <h3>Alterar Preço</h3>
+            <p id="diesel-modal-title">Diesel S10</p>
+            <div class="input-group" style="margin-top: 15px;">
+                <label>Novo Valor (R$)</label>
+                <input type="number" id="new-diesel-price" step="0.01" placeholder="0,00" style="font-size: 1.5rem; text-align: center;">
+            </div>
+            <div class="modal-actions">
+                <button id="cancel-diesel-edit" class="btn-modal-cancel">Cancelar</button>
+                <button id="confirm-diesel-edit" class="btn-modal-confirm">Salvar</button>
             </div>
         </div>
     </div>
